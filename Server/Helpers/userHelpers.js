@@ -50,13 +50,43 @@ module.exports = {
   }
  })
 },
- application:(formData)=>{
-  console.log(formData);
-   return new Promise((resolve,reject)=>{
-      schema.application(formData).save()
-      console.log('form inserted succesfuly');
-      resolve()
+//  application:(formData)=>{
+//   console.log(formData);
+//    return new Promise((resolve,reject)=>{
+//       schema.application(formData).save()
+//       console.log('form inserted succesfuly');
+//       resolve()
+//    })
+//  },
+ uploadPost:(post)=>{
+  console.log('klo');
+  return new Promise((resolve,reject)=>{
+    schema.postData(post).save() 
+    resolve()
    })
+ },
+ getPosts:(userId)=>{
+  return new Promise((resolve,reject)=>{
+    schema.postData.find({userId:userId}).then((posts)=>{
+      console.log(posts,'pppppp');
+      resolve(posts)
+    })  
+  })
+ },
+ postLiked:(data)=>{
+  return new Promise(async (resolve,reject)=>{
+    const user = await schema.postData.find({ likedUsers: { $all: [data.userId] } } )
+    if(user){
+      console.log('iiiiiiiiippppp');
+    }
+    schema.postData.updateOne({_id:data.postId},
+    {
+      $inc:{like:1},
+      $push:{likedUsers:data.userId}
+    }).then(()=>{
+      console.log('okokko');
+    })
+  })
  }
 }
 

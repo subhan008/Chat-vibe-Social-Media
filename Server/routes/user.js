@@ -1,44 +1,22 @@
 var express = require('express');
 var router = express.Router();
-const userHelpers = require('../Helpers/userHelpers')
+const {userLogin,userSignup,uploadPost,getPosts,postLiked} = require('../Controllers/UserController/UserController')
 const jwt = require('jsonwebtoken')
-require('dotenv').config();
+const multer  = require('multer')
+const path = require('path');
 
-router.post('/signup',(req,res)=>{ 
-  console.log(req.body,'---------------');
+require('dotenv').config();     
 
-   userHelpers.doSignup(req.body).then((status)=>{
+router.post('/signup',userSignup)
 
-    console.log(status.userAdded);
-      
-    if (status.userAdded) {   
-      res.status(201).send({message:"User created successfully",userAdded:true})
-    } else{
-      res.send({message:"Email Already Exist",userAdded:false})
-    }
-  })
-})
+router.post('/login', userLogin)    
 
-router.post('/login',(req,res)=>{ 
-  console.log(req.body,'login data');
-  
-   userHelpers.doLogin(req.body).then((user)=>{
-    console.log('222');
-    
-    if (user) {    
-      console.log(user,'pop');  
-      const token = jwt.sign({_id:user._i},process.env.SECRET_KEY,{expiresIn:"5s"}) 
-      return res.send({token: token,message:"User logined successfully",user,valid:true})
-    } 
-    else{ 
-     return res.send({message:"Invalid Email Or Password",valid:false})          
-    }
-  })    
-})    
+router.post('/upload-post', uploadPost)     
+
+router.get('/getPosts/:userId',getPosts)
+
+router.post('/post-liked',postLiked)
 
 
-   
-  
-   
 module.exports = router;
  

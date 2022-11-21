@@ -7,7 +7,7 @@ const schema = require('../dbSchema/userSchema')
 const jwt = require('jsonwebtoken')
 /* GET users listing. */
 const  Admin = {
-  name:"admin",
+  name:"admin",   
   password:'123'  
 }
 

@@ -2,6 +2,7 @@
   text-align: center;
 }
 body{
+  /* #e8f2fa */
   background-color: #edebe8;
 }
 .App-logo {
@@ -45,20 +46,28 @@ body{
 .border-t-10 {
   border-top-width: 10px;
 }
-.nav{
-  background-color: white;
-}
+
 .posts{
   
   border-style: solid ;
   border-width: 1px;
   border-radius: 10px;
   margin-top: 23px;
-  height: 35rem;
-  width: 37rem;
+  height: 42rem;
+  width: 40rem;
 }
 
 .post-img{
-  width: 37rem;
-  height: 25rem;
+  width: 43rem;
+  height: 31rem;
+}
+
+.down-line{
+  margin-top: 27px;
+  width: 100%;
+}
+
+.post-profile-image{
+      width: 350px;
+    height: 327px;
 }
