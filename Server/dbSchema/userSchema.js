@@ -15,13 +15,27 @@ const postShema = new mongoose.Schema({
    userId:String,
    caption:String,
    image:String,
-   comment:{type:String},
+   comment:[{user:String,text:String}],
    like:{ type: Number, default: 0 },
    likedUsers:[String],
    report:Boolean         
 })
 
+const ConnectionShema = new mongoose.Schema({
+   userId:String,
+   followers:[String],
+   following:[String],
+})    
+  
+const NotificationShema = new mongoose.Schema({
+   userId:String,
+   notifications:[{date:Date,user:String,text:String,seen:Boolean}],
+
+})   
+
+const notfiData = mongoose.model(collection.NOTIFICATION_COLLECTION, NotificationShema);
+const connectionData = mongoose.model(collection.CONNECTION_COLLECTION, ConnectionShema)
 const userData = mongoose.model(collection.USER_COLLECTION, userSchema);
 const postData = mongoose.model(collection.POST_COLLECTION, postShema);
 
-module.exports = {userData,postData};        
+module.exports = {userData,postData,connectionData,notfiData};              

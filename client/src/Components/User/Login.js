@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 
@@ -7,6 +7,15 @@ function login() {
  const [login,setLogin] = useState({})
  const [loginErr,setLoginErr] = useState("")
 
+ const token = JSON.parse(localStorage.getItem("userToken"))
+console.log(token,'----------');
+ useEffect(()=>{
+  if(token){
+  navigate('/')
+}
+ },[])
+
+
 const handleOnChange = (e)=>{
 setLogin({...login,[e.target.name]:e.target.value})
 }
@@ -14,7 +23,9 @@ console.log(login,'7788');
 
 const onSumbit = (e)=>{
   e.preventDefault()
+  console.log('dsdsds');
      axios.post('http://localhost:8000/login',login).then((res)=>{
+      console.log('6555555');
     if(res.data.valid){
       localStorage.setItem("user",JSON.stringify(res.data.user))
       localStorage.setItem("userToken",JSON.stringify(res.data.token))       
