@@ -17,9 +17,9 @@ const [followersModal,setFollowersModal] = useState(false)
 const [following,setFollowing] = useState([])
 const [followers,setFollowers] = useState([])
 
-const [f,setF] = useState("llllllll")
+const [fileErrMsg,setFileErrMsg] = useState(false)
 
-console.log(f,'uuuuu');
+console.log(image,'uuuuu');
 const localUser = JSON.parse( localStorage.getItem('user') )
 const userId = localUser._id        
 
@@ -46,35 +46,39 @@ useEffect(()=>{
 },[]) 
 
   
-
 const handleOnChange = (e)=>{
   setImage(e.target.files[0]) 
 }
 
-
 const onLike = (likedUserId,postId)=>{
   console.log('sasasas');
-  axios.post(`http://localhost:8000/post-liked`,{postId,userId}).then((result)=>{  
+  axios.post(`http://localhost:8000/post-like-Unlike`,{postId,userId,profilePage:true}).then((result)=>{  
       setViewPostedData(result.data.data)
   })
 }
 
 const onSubmit = (e)=>{
   e.preventDefault();
+if(image.type == "image/png"){
+  const data = new FormData()
 
-const data = new FormData()
 data.append('file',image);
-const date = new Date()
+const date = new Date() 
 const userId = localUser._id
    console.log(data,'oooo');  
   axios.post('http://localhost:8000/upload-post',data,{params:{date,userId,caption}}).then((res)=>{
     location.reload()
   })
+}else{
+  setFileErrMsg(true)
+}
+
 }
 
 const onComment = (postId)=>{
   if(!comment==""){
-    axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId}).then((res)=>{
+    axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId,profilePage:true})
+    .then((res)=>{
         setViewPostedData(res.data.data)
     })
   }
@@ -158,7 +162,14 @@ const onComment = (postId)=>{
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto mt- rounded-lg" style={{width:"30rem",height:'33rem'}}>
-               
+                { fileErrMsg?
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                   <span class="block sm:inline">You can upload image file only</span>    
+                  <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg onClick={()=>{setFileErrMsg(false)}} class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                  </span>
+                </div>: null
+                }
                { image? 
                <>  <img className=" px-5 ml-1"  src={URL.createObjectURL(image)} alt="" style={{maxWidth:"100%",height:'auto'}}/>
                 <button class="bg-black mt-4 rounded-xl hover:bg-indigo-dark text-white font-bold py-2 px-4 w-54 inline-flex justify-center">
@@ -186,11 +197,12 @@ const onComment = (postId)=>{
                 <input required name="image" onChange={handleOnChange} class="hidden block w-full text-sm text-gray-900 bg-gray-200 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file"/>       
 </button> */}
 <textarea onChange={(e)=>{setCaption(e.target.value)}} name="caption"  id="message" rows="4" class="mt-5 block p-2.5 w-full h-24 text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write Caption..."></textarea>
-                    <button onClick={onSubmit}
+                    { image?<button onClick={onSubmit}
                     className="bg-blue-500 mt-3 h-10 w-40 pb-0 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6  rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                     type="button" >
                     Share
-                  </button>
+                  </button> : null
+}
 
                 </div>
                 {/*footer*/}
@@ -304,13 +316,13 @@ const onComment = (postId)=>{
                     Following
                   </h3>
                   <svg onClick={() => setFollowingModal(false)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="text-black-100  w-8 h-8 ">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-</svg>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto mt- rounded-lg mt-2 overflow-auto" style={{width:"27rem",height:'20rem'}}>
                   { following.map((element)=>{
-                   return element.user ?  <div className="flex justify-between ">
+                   return element.user ?  <div className="flex justify-between mt-3">
                     
                     <div className="flex">
                   <img className="w-10 h-10 rounded-full " src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
@@ -369,7 +381,6 @@ const onComment = (postId)=>{
                     </div>
                   </div>  : null
                   })
-                   
                   }
 
 

@@ -4,7 +4,6 @@ require('dotenv').config();
 
 module.exports = {
     verification:(email)=>{
-        console.log('+++++++++++++++++++++++++++++++++++++++');
         return new Promise((resolve,reject)=>{
             let transporter = nodemailer.createTransport({
                 host: "main.subhan07.com",

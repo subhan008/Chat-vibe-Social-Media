@@ -20,9 +20,9 @@ const handleOnChange = (e)=>{
 setLogin({...login,[e.target.name]:e.target.value})
 }
 console.log(login,'7788');
-
+  
 const onSumbit = (e)=>{
-  e.preventDefault()
+  e.preventDefault()  
   console.log('dsdsds');
      axios.post('http://localhost:8000/login',login).then((res)=>{
       console.log('6555555');

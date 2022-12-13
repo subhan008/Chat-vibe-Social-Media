@@ -33,9 +33,21 @@ const NotificationShema = new mongoose.Schema({
 
 })   
 
+const ChatSchema = new mongoose.Schema({
+   chaterIds:[String],
+   chat:[
+      {
+         messagerId:String,
+         message:String,
+         timeStamp:Date
+      }
+   ]
+})
+
+const chatData = mongoose.model(collection.CHAT_COLLECTION, ChatSchema);
 const notfiData = mongoose.model(collection.NOTIFICATION_COLLECTION, NotificationShema);
 const connectionData = mongoose.model(collection.CONNECTION_COLLECTION, ConnectionShema)
 const userData = mongoose.model(collection.USER_COLLECTION, userSchema);
 const postData = mongoose.model(collection.POST_COLLECTION, postShema);
 
-module.exports = {userData,postData,connectionData,notfiData};              
+module.exports = {userData,postData,connectionData,notfiData,chatData};              

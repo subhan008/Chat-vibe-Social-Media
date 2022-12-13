@@ -151,22 +151,51 @@ getFollowers:(id)=>{
   return new Promise(async (resolve,reject)=>{
     const Data = []
     const user  = await schema.connectionData.findOne({userId:id})
-
+  
     for( i = 0 ; i<user.followers.length ; i++){
        const folUser = await schema.userData.findOne({_id:user.followers[i]})
      console.log(folUser,'kmkmmk');   
      Data.push({id:user.followers[i],user:folUser?.fname})
      console.log(Data,'??????????');
     }
-    console.log(Data,'022202022202');
     resolve(Data)
     
-    
   })
-}
+},
+getSuggestion:(userId)=>{
+  return new Promise(async(resolve,reject)=>{
+    let data = []
+    const users = await schema.userData.find().limit(30)
+    const followings = await schema.connectionData.findOne({userId:userId})
+    for( i = 0 ; i<users.length ; i++){
+       if(!followings.following.includes(users[i]._id)){
+          data.push(users[i])
+         
+       } 
+       console.log(data.length,'+++++++++++++++++');
+    }
+  })
+},
+addMessage:(data)=>{
+   return new Promise(async (resolve,reject)=>{
+    const chatExist = await schema.chatData.findOne({$and:[{chaterIds:data.messagerId},{chaterIds:data.receiverId}]   })
+    if(chatExist){
+      schema.chatData.updateOne({_id:chatExist._id},{
+        $push:{chat:data}
+      }).then(()=>{
+        resolve()
+      })
 
+    }else{
+      console.log('heheheh');
+      await schema.chatData({chaterIds:[data.messagerId,data.receiverId],chat:[data]}).save()
+      resolve()
+    }
+   })
+}
 
  
-}
+ 
+} 
 
 

@@ -5,21 +5,21 @@ function Suggestions({}) {
 const [users,setUsers] = useState([])
 const localUser = JSON.parse( localStorage.getItem('user'))
 
+
  useEffect(()=>{
-  axios.get('http://localhost:8000/suggestions').then((res)=>{
+  axios.get(`http://localhost:8000/suggestions/${localUser._id}`).then((res)=>{
     setUsers(res.data.data)
   })
- },[])
- 
+ })
 function onFollow(followedUserId,userId) {
   console.log('okokoo');
   axios.post('http://localhost:8000/follow',{followedUserId:followedUserId,userId:localUser._id}).then((res)=>{
-
+    
   })
 } 
 
   return (
-    <div className="w-96 h-60 mr-5 bg-white rounded-xl overflow-auto scrollbar-hide" style={{width:"25rem"}}>
+    <div className=" h-80 mr-5 bg-white rounded-xl overflow-auto scrollbar-hide mt-6" style={{width:"25rem"}}>
      <h1 className="font-medium text-gray-500">Suggestions for u</h1>
      { users.map((element)=>{
        return <div className="flex mt-5  ">

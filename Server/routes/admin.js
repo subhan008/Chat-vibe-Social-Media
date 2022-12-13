@@ -3,9 +3,9 @@ var router = express.Router();
 const userHelpers = require('../Helpers/userHelpers')
 const adminHelpers = require('../Helpers/adminHelpers')
 const schema = require('../dbSchema/userSchema')
-
 const jwt = require('jsonwebtoken')
-/* GET users listing. */
+
+
 const  Admin = {
   name:"admin",   
   password:'123'  
@@ -22,7 +22,7 @@ router.post('/admin/admin-login',async function(req, res, next) {
   }
   else res.send({admin:false,message:'Invalid name or password'})
 });      
-
+ 
 
 
 

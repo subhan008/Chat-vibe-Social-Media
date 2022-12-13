@@ -94,21 +94,40 @@ const getPosts = ((req,res)=>{
 const postLike_Unlike = ((req,res)=>{
 console.log('dsdss');        
 postHelpers.postLike_Unlike(req.body).then(async()=>{
-  const postData = await schema.postData.findOne({_id:req.body.postId})
-    res.send({message:"success",data:postData})   
+  if(req.body.profilePage){
+    const postData = await schema.postData.findOne({_id:req.body.postId})
+    res.send({message:"success",data:postData}) 
+  }
+  else if(req.body.homePage){
+    postHelpers.getAllPosts().then((posts)=>{
+      res.send({message:"success",data:posts})
+    })
+    
+  }
+    
     })
 });
   
 const addComment = ((req,res)=>{
    postHelpers.addComment(req.body).then(async ()=>{
-    const postData = await schema.postData.findOne({_id:req.body.postId})
-    res.send({message:"comment added successfuly",data:postData})       
-   })
+    if(req.body.profilePage){
+       const postData = await schema.postData.findOne({_id:req.body.postId})
+       res.send({message:"comment added successfuly",data:postData}) 
+    }
+    else if(req.body.homePage){
+      postHelpers.getAllPosts().then((posts)=>{
+        res.send({message:"success",data:posts})
+      })
+    }
+         
+   })   
 })
   
 const getSuggestion = (async (req,res)=>{
-  const users = await schema.userData.find().limit(10)
-  res.send({data:users})
+  const users = await schema.userData.find().limit(30)
+
+    res.send({data:users})
+  
 })
 
 const followUser =((req,res)=>{
@@ -121,7 +140,10 @@ const followUser =((req,res)=>{
 })
 
 const getAllPosts = ((req,res)=>{
-    
+    console.log('212121212');
+    postHelpers.getAllPosts().then((posts)=>{
+      res.send({posts:posts})
+    })
 })
 
 const getNotification = (async (req,res)=>{
@@ -131,18 +153,65 @@ const getNotification = (async (req,res)=>{
    res.send({data:data?.notifications})
 })  
 
-const getFollowing = ((req,res)=>{ 
-   console.log(req.params.id,'mmmmm');
+const getFollowingFollowers = ((req,res)=>{ 
 
   userHelpers.getFollowing(req.params.id).then((following)=>{
     userHelpers.getFollowers(req.params.id).then((followers)=>{
             res.send({followingUsers:following,followersUsers:followers})
-
+    
     })
   })
 })
 
+const addMessage = ((req,res)=>{
+  userHelpers.addMessage(req.body).then(async()=>{
+   const chatData = await schema.chatData.findOne({$and:[{chaterIds:req.body.messagerId},{chaterIds:req.body.receiverId}]   })
+   res.send({messages:chatData.chat})
+  })
+})
+const getMessages = (async(req,res)=>{
+  const chatData = await schema.chatData.findOne({$and:[{chaterIds:req.params.messagerId},{chaterIds:req.params.receiverId}]   })
+  console.log(chatData,'dsddsdsds');
+  if(chatData){
+    res.send({messages:chatData.chat})
+  }
+})
+
+const getChatUsers = (async (req,res)=>{
+  console.log(req.params.id);
+    var chatUsers = await schema.chatData.find({chaterIds:req.params.id})
+    let data = [ ]
+    for ( i = 0; i < chatUsers.length; i++) {
+       
+      const user = await schema.userData.findOne({_id:chatUsers[i].chaterIds[1]})
+      console.log(chatUsers[i].chaterIds[1],'ooo');
+      if(chatUsers[i].chaterIds[1] !== req.params.id){
+        
+      data.push({id:chatUsers[i].chaterIds[1],user:user.fname})
+      }
+    }
+    
+    console.log(data,'oioioii');   
+    res.send({data:data})
+})
+ 
+const addNewMessages = (async(req,res)=>{
+  console.log(req.body,'lkklkkkl');   
+  const chatExist = await schema.chatData.findOne({$and:[{chaterIds:req.body.messagerId},{chaterIds:req.body.receiverId}]   })
+  console.log(chatExist,'77777');
+  if(chatExist){
+    res.send({message:'success',chatUser:chatExist}) 
+  }else{
+      schema.chatData({chaterIds:[req.body.messagerId,req.body.receiverId]}).save() 
+      const data = await schema.chatData.findOne({$and:[{chaterIds:req.body.messagerId},{chaterIds:req.body.receiverId}]   })
+      
+      console.log('8888');
+      res.send({message:'success',chatUser:data})
+  }
+  console.log('444444');
+})
+
 module.exports  = {
    userLogin,userSignup,uploadPost,getPosts,postLike_Unlike,getAllPosts,addComment,getSuggestion,followUser,getNotification,
-   getFollowing
+   getFollowingFollowers,addMessage,getMessages,getChatUsers,addNewMessages
 }

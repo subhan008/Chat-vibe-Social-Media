@@ -53,5 +53,24 @@ module.exports = {
               resolve()
             })
           })
+       },
+       getAllPosts:()=>{
+        return new Promise(async (resolve,reject)=>{
+        let posts = await  schema.postData.find().sort({_id:-1})
+
+        for(i=0 ; i<posts.length ; i++){
+          
+            let temp = posts[i]
+
+           const user = await schema.userData.findOne({_id:posts[i].userId})
+
+            temp.userId = user.fname
+          posts[i] = temp
+           console.log(temp,'*********');      
+        }
+        console.log(posts,'1111111');
+      
+        resolve(posts)     
+        })
        }
 }
