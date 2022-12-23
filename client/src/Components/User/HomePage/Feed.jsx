@@ -148,7 +148,7 @@ useEffect(()=>{
                       <img className="w-8 h-8 rounded-full ml-2" src={element?.profileImg? `http://localhost:8000/images/profile-images/${ element.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
                       <h1 className="font-medium text-justify " style={{marginLeft:'20px',marginTop:'-4px',}}>{element.user} 
                       <span className="font-normal ml-3 text-base">
-                         {element.text}
+                         {element.text}  
                         </span>
                         </h1>
                         
