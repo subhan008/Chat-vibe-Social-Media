@@ -74,3 +74,10 @@ body{
 .chat-div{
   height: 38rem;
 }
+
+.post-view{
+  margin-left: -44px;
+    margin-top: -10rem;
+    visibility: hidden;
+
+}

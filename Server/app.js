@@ -9,7 +9,7 @@ var usersRouter = require('./routes/admin');
 var mongoose = require('mongoose')
 var app = express();  
 const cors = require('cors')      
-
+ 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

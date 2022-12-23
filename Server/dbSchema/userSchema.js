@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
    lname:String,
    email:String,
    phone:String,
-   password:String
+   profileImg:String,
+   password:String,
+   bio:String,
 }); 
 
 const postShema = new mongoose.Schema({
@@ -15,7 +17,7 @@ const postShema = new mongoose.Schema({
    userId:String,
    caption:String,
    image:String,
-   comment:[{user:String,text:String}],
+   comment:[{user:String,text:String,profileImg:String,date:Date}],
    like:{ type: Number, default: 0 },
    likedUsers:[String],
    report:Boolean         
@@ -30,8 +32,7 @@ const ConnectionShema = new mongoose.Schema({
 const NotificationShema = new mongoose.Schema({
    userId:String,
    notifications:[{date:Date,user:String,text:String,seen:Boolean}],
-
-})   
+})     
 
 const ChatSchema = new mongoose.Schema({
    chaterIds:[String],

@@ -5,6 +5,8 @@ import HomePage from "./Components/User/HomePage/Feed";
 import Profile from "./Components/User/Profile/Profile";
 import Notification from "./Components/User/Notification";
 import ChatPage from "./Components/User/Chat/Chat";
+import EditProfile from "./Components/User/Profile/EditProfile";
+
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import {BrowserRouter,Routes,Route} from "react-router-dom";
 function App() {
@@ -20,6 +22,7 @@ function App() {
           <Route path="/profile" element={<Profile />}/>
           <Route path="/notification" element={<Notification />}/>
           <Route path="/inbox" element={<ChatPage />}/>
+          <Route path="/edit-profile" element={<EditProfile/>} />
         </Route>
       
       </Routes>

@@ -18,7 +18,7 @@ console.log(token,'----------');
 
 const handleOnChange = (e)=>{
 setLogin({...login,[e.target.name]:e.target.value})
-}
+}  
 console.log(login,'7788');
   
 const onSumbit = (e)=>{

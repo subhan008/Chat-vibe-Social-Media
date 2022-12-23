@@ -46,6 +46,7 @@ function Chat() {
   const handleSentMessage = (recieverId)=>{
      axios.post(`http://localhost:8000/addMessage`,{messagerId:localUser._id,message:newMessage,timeStamp: new Date(),receiverId:chatUser.id})
      .then((res)=>{
+        /** Sent message to socket server **/
     socket.current.emit('sent-message',{receiverId:chatUser.id,messageData:{messagerId:localUser._id,message:newMessage,timeStamp:new Date()}})
 
        setMessages(res.data.messages)
@@ -62,7 +63,7 @@ function Chat() {
   useEffect(()=>{   
     console.log('77777x77');
     socket.current.on('receive-message',(data)=>{
-      setReceiveMessage(data)
+      console.log('sampleeee');
     })   
   },[])    
 
@@ -116,18 +117,18 @@ function Chat() {
         <div className="border overflow-auto" style={{height:"30rem",width:'40rem'}}>
           { messages.map((element)=>{
       return element.messagerId == localUser._id?<>
-          <div ref={scroll} className="w-64 h-24 mt-4 bg-cyan-100  ml-80 rounded-lg" style={{borderRadius:'28px',marginLeft:'22rem'}}>
+          <div ref={scroll} className="w-56 h-20 mt-4 bg-cyan-100  ml-80 rounded-lg" style={{borderRadius:'28px',marginLeft:'24rem'}}>
             <h1 className="float-left ml-4 mt-2 text-lg">{element.message}</h1>
-            <p className="float-right  mr-5 text-xs" style={{marginTop:'77px'}}>{format(element.timeStamp)}</p>
+            <p className="float-right  mr-5 text-xs" style={{marginTop:'60px'}}>{format(element.timeStamp)}</p>
           </div>
           </>
           :
           <> 
           <div className="flex  ml-4" ref={scroll}>
           <Avatar className="mt-10" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="avatar" variant="circular" size="sm" />
-            <div className="w-64 h-24 mt-4 bg-zinc-100 ml-2 rounded-lg" style={{borderRadius:'28px'}}>
+            <div className="w-56 h-20 mt-4 bg-zinc-100 ml-2 rounded-lg" style={{borderRadius:'28px',maxHeight:'100px'}}>
              <h1 className="float-left ml-4 mt-2 text-lg">{element.message}</h1>
-             <p className="float-right  mr-5 text-xs" style={{marginTop:'77px'}}>{format(element.timeStamp)}</p>
+             <p className="float-right  mr-5 text-xs" style={{marginTop:'60px'}}>{format(element.timeStamp)}</p>
             </div>
           </div>
           </>

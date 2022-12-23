@@ -41,7 +41,7 @@ const userLogin = ((req,res)=>{
      
      if (user) {    
        console.log(user,'pop');   
-       const token = jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"1h"}) 
+       const token = jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"1d"}) 
        return res.send({token: token,message:"User logined successfully",user,valid:true})
      } 
      else{ 
@@ -84,31 +84,35 @@ const uploadPost = ((req,res)=>{
 const getPosts = ((req,res)=>{
     console.log(req.params.userId);
     postHelpers.getPosts(req.params.userId).then(async(posts)=>{
+      const userData = await schema.userData.findOne({_id:req.params.userId})
       const conn = await schema.connectionData.findOne({userId:req.params.userId})
       const followers = conn.followers.length
       const following = conn.following.length
-    res.send({data:posts,followers:followers,following:following})
+    res.send({data:posts,followers:followers,following:following,user:userData})
   })
 });
 
 const postLike_Unlike = ((req,res)=>{
-console.log('dsdss');        
-postHelpers.postLike_Unlike(req.body).then(async()=>{
+console.log(req.body,'dsdss');        
+postHelpers.postLike_Unlike(req.body).then(async(liked)=>{
+  if(liked){
+  const userData  = await schema.userData.findOne({_id:req.body.likedUserId}) 
+  await userHelpers.doNotification(req.body.postedUserId , req.body.likedUserId,`liked your post`,userData.fname)
+  }
   if(req.body.profilePage){
     const postData = await schema.postData.findOne({_id:req.body.postId})
     res.send({message:"success",data:postData}) 
   }
   else if(req.body.homePage){
-    postHelpers.getAllPosts().then((posts)=>{
-      res.send({message:"success",data:posts})
+    postHelpers.getAllPosts().then(async (posts)=>{
+      res.send({message:"success",data:posts,liked:liked})
     })
-    
   }
-    
     })
 });
   
 const addComment = ((req,res)=>{
+  console.log(req.body,'000000000');
    postHelpers.addComment(req.body).then(async ()=>{
     if(req.body.profilePage){
        const postData = await schema.postData.findOne({_id:req.body.postId})
@@ -125,7 +129,7 @@ const addComment = ((req,res)=>{
   
 const getSuggestion = (async (req,res)=>{
   const users = await schema.userData.find().limit(30)
-
+    
     res.send({data:users})
   
 })
@@ -134,26 +138,27 @@ const followUser =((req,res)=>{
   console.log('l,l,l,l,,');
   userHelpers.followUser(req.body).then(async()=>{
     console.log('0000000');
-  await userHelpers.doNotification(req.body)
+    const userData  = await schema.userData.findOne({_id:req.body.userId})
+  await userHelpers.doNotification(req.body.followedUserId , req.body.userId,`${userData.fname} started following you`)
    res.send({message:'success'})  
   })   
 })
 
 const getAllPosts = ((req,res)=>{
     console.log('212121212');
-    postHelpers.getAllPosts().then((posts)=>{
-      res.send({posts:posts})
+    postHelpers.getAllPosts().then(async (posts)=>{
+      const userData = await schema.userData.findOne({_id:req.params.id})
+      res.send({posts:posts,userData:userData}) 
     })
 })
 
 const getNotification = (async (req,res)=>{
-   console.log(req.params.id,'heiiddsdsdsds');
    const data = await schema.notfiData.findOne({userId:req.params.id})
-   console.log(data);
+   data.notifications.reverse()
    res.send({data:data?.notifications})
 })  
 
-const getFollowingFollowers = ((req,res)=>{ 
+const getFollowingFollowers = ((req,res)=>{                      
 
   userHelpers.getFollowing(req.params.id).then((following)=>{
     userHelpers.getFollowers(req.params.id).then((followers)=>{
@@ -184,10 +189,16 @@ const getChatUsers = (async (req,res)=>{
     for ( i = 0; i < chatUsers.length; i++) {
        
       const user = await schema.userData.findOne({_id:chatUsers[i].chaterIds[1]})
-      console.log(chatUsers[i].chaterIds[1],'ooo');
+      const messagerUser = await schema.userData.findOne({_id:chatUsers[i].chaterIds[0]})
+      console.log(chatUsers[i].chaterIds[1],'ooo');   
       if(chatUsers[i].chaterIds[1] !== req.params.id){
-        
+        console.log('kkkkk');
       data.push({id:chatUsers[i].chaterIds[1],user:user.fname})
+      }
+      else{
+        if(chatUsers[i].chaterIds[0] !== req.params.id){
+          data.push({id:chatUsers[i].chaterIds[0],user:messagerUser.fname})
+        }
       }
     }
     
@@ -211,7 +222,86 @@ const addNewMessages = (async(req,res)=>{
   console.log('444444');
 })
 
+const searchUser = (async(req,res)=>{
+  const user = await schema.userData.findOne({fname:req.body.user})
+  console.log(user);
+  if(user){
+    res.send({user:user})
+  }
+  else res.send({user:null,message:'user not found'})
+})
+
+const addProfileImg = ((req,res)=>{
+  const userId = req.params.id
+   console.log(req.params.id,'77777');
+   try {
+    const storage = multer.diskStorage({
+      destination: path.join(__dirname, '../../public/images/profile-images'),
+      filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + req.params.id + '.png'); 
+      },  
+    });            
+      
+    const upload = multer({ storage: storage }).single('file');
+          
+    upload(req, res, (err) => {
+      if (!req.file) {
+        console.log('no image');
+        res.json({ noImage: 'select image' });
+      } else {
+        console.log(req.file.filename,'popoppp');
+        /*inserting porfile img in DB */
+        schema.userData.updateOne({_id:userId},{
+          $set:{
+            profileImg:req.file.filename
+          }
+        }).then(()=>{ 
+          console.log('nnnn');
+          res.send({message:"success"})
+        })
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+const removeProfileImg = ((req,res)=>{
+      schema.userData.updateOne({_id:req.body.userId},{
+        $unset:{profileImg:1}
+      }).then(()=>{
+          res.send({message:"success"})
+      })
+})
+
+const notificationsSeend = ((req,res)=>{
+  console.log('444',req.params.id);
+  schema.notfiData.updateOne({userId:req.params.id},{
+     $set: { notifications : [] } 
+  }).then(()=>{
+    console.log('mnmn');
+    res.send({})
+  })
+})
+
+const unFollowUser = ((req,res)=>{
+    schema.connectionData.updateOne({userId:req.body.userId},{
+      $pull:{
+        following:req.body.id
+      }
+    }).then(()=>{
+      res.send({message:'success'})
+    })       
+})  
+
+const editProfile = ((req,res)=>{
+   console.log(req.body,'&&&&&&&');
+   userHelpers.editProfile(req.body).then(()=>{
+      res.send({message:'success'}) 
+   })
+})
+
 module.exports  = {
-   userLogin,userSignup,uploadPost,getPosts,postLike_Unlike,getAllPosts,addComment,getSuggestion,followUser,getNotification,
-   getFollowingFollowers,addMessage,getMessages,getChatUsers,addNewMessages
+   userLogin,userSignup,uploadPost,getPosts,postLike_Unlike,getAllPosts,addComment,getSuggestion,followUser,getNotification,editProfile,
+   getFollowingFollowers,addMessage,getMessages,getChatUsers,addNewMessages,searchUser,addProfileImg,removeProfileImg,notificationsSeend,unFollowUser
 }

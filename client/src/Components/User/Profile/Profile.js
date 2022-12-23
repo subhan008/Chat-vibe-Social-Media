@@ -1,6 +1,9 @@
 import React,{useState,useEffect} from 'react'
 import Navbar from "../Navbar";
 import axios from "axios";
+import ProfileImgModal from "./ProfileImgModal";
+import {useNavigate} from "react-router-dom";
+
 function Profile() {      
 
 const [showModal, setShowModal] = useState(false);
@@ -16,19 +19,21 @@ const [followingModal,setFollowingModal] = useState(false)
 const [followersModal,setFollowersModal] = useState(false)
 const [following,setFollowing] = useState([])
 const [followers,setFollowers] = useState([])
-
 const [fileErrMsg,setFileErrMsg] = useState(false)
+const [profileImgModal,setProfileImgModal] = useState(false)
+const [userData,setUserData] =useState({})
+const navigate = useNavigate()
 
-console.log(image,'uuuuu');
-const localUser = JSON.parse( localStorage.getItem('user') )
-const userId = localUser._id        
+console.log(profileImgModal,'uuuuu');
+let localUser = JSON.parse( localStorage.getItem('user') )
+const userId = localUser._id 
 
 useEffect(()=>{
   axios.get(`http://localhost:8000/profile-datas/${userId}`).then((res)=>{
-    console.log(res.data);
   setPosts(res.data.data)
   setFollowersCount(res.data.followers)
   setFollowingCount(res.data.following)
+  setUserData(res.data.user)
 })
 },[])
 
@@ -61,23 +66,21 @@ const onSubmit = (e)=>{
   e.preventDefault();
 if(image.type == "image/png"){
   const data = new FormData()
-
+  
 data.append('file',image);
 const date = new Date() 
 const userId = localUser._id
    console.log(data,'oooo');  
   axios.post('http://localhost:8000/upload-post',data,{params:{date,userId,caption}}).then((res)=>{
-    location.reload()
+    location.reload() 
   })
 }else{
   setFileErrMsg(true)
-}
-
-}
+}} 
 
 const onComment = (postId)=>{
   if(!comment==""){
-    axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId,profilePage:true})
+    axios.put('http://localhost:8000/add-comment',{comment:comment,user:userData.fname,postId:postId,profileImg:userData.profileImg,date:new Date(),profilePage:true})
     .then((res)=>{
         setViewPostedData(res.data.data)
     })
@@ -86,6 +89,14 @@ const onComment = (postId)=>{
     console.log('err');
   }
 }
+
+const handleUnFollow = (id)=>{
+  axios.put('http://localhost:8000/unFollow',{id:id,userId:userId}).then(()=>{
+    location.reload()
+  })
+}
+
+
   return (
     <>
      <Navbar />
@@ -93,12 +104,19 @@ const onComment = (postId)=>{
     <div className="container">
         <div className="flex mt-10">
           <div class="">
-            <img className="rounded-full ml-96 h-46" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
-          </div>
+         { userData?.profileImg?
+          <img src={`http://localhost:8000/images/profile-images/${ userData.profileImg }`} onClick={()=>{setProfileImgModal(true)}} className="rounded-full ml-96 h-46  cursor-pointer" alt="" style={{width:'18rem',height:'17rem'}}/> 
+          : 
+          <img className="rounded-full ml-96 h-46 w-20 cursor-pointer" onClick={()=>{setProfileImgModal(true)}} style={{width:'18rem',height:'17rem'}} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
+
+        } 
+         </div>
            <div className="">
-             <div className="mt-16 ml-32 w-40 pr-16">
-              <h1 className="  text-4xl font-light">{localUser.fname}</h1>
-             
+             <div className="flex mt-16 ml-32 w-40 pr-16">
+              <h1 className="  text-4xl font-light">{userData.fname}</h1>
+              <div className="ml-28 mt-1">
+                <button onClick={()=>{navigate('/edit-profile')}} className="bg-indigo-500 hover:bg-indigo-700 rounded-md w-28 h-8 text-white border border-slate-900 font-medium">Edit profile</button>
+              </div>
           </div>
             <div className="flex ml-32 mt-6">
                 <h1 className="text-lg font-normal"><span className="font-medium">{posts.length}</span> posts</h1> 
@@ -106,9 +124,11 @@ const onComment = (postId)=>{
                 <h1 className="text-lg ml-12 font-normal cursor-pointer" onClick={()=>{ setFollowingModal(true)}}><span className="font-medium">{followingCount}</span> following</h1>
 
               </div>
+              <div className="ml-32 mt-6">
+                <h1 className="float-left text-lg">{userData?.bio}</h1>
+              </div>
            </div>
           
-           
          </div> 
        
          <div className="mt-28">
@@ -135,9 +155,12 @@ const onComment = (postId)=>{
               <div className="grid mt-3 grid-cols-3 gap-y-8 ml-12  px-36 ">
               { posts.map((element)=>{
                 
-               return  <img onClick={()=>{setPostView(true) 
+               return  <><div><img onClick={()=>{setPostView(true) 
                                           setViewPostedData(element)
-               }} className="post-profile-image cursor-pointer" src={`http://localhost:8000/images/${ element.image }`}  alt="" /> 
+               }} className="post-profile-image hover:brightness-50 cursor-pointer" src={`http://localhost:8000/images/${ element.image }`}  alt="" /> 
+               <button className="post-view absolute border text-white ">sasas</button>
+               </div>
+               </>
                
           })
               }
@@ -203,7 +226,6 @@ const onComment = (postId)=>{
                     Share
                   </button> : null
 }
-
                 </div>
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b mt-16">
@@ -215,9 +237,9 @@ const onComment = (postId)=>{
           <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
         </>
       ) : null}
+
        {postView ? (
         <>
-        
           <div
             className="justify-center mr-24 items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
           style={{marginRight:"16rem"}}>
@@ -241,12 +263,12 @@ const onComment = (postId)=>{
                    <img src={`http://localhost:8000/images/${viewPostedData.image}`}  alt="" className="w-6/12 bg-red-100" style={{maxWidth:"100%",height:'34rem'}}/>
                    <div className="w-6/12  bg-white-100">
                     <div className="border border-gray-300 flex w-11/12 h-12">
-                      <img className="w-9 h-9 rounded-full ml-2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
+                      <img className="w-9 h-9 rounded-full ml-2"  src={userData?.profileImg? `http://localhost:8000/images/profile-images/${ userData.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"}  alt="" />
                    <h1 className="font-medium text-lg" style={{marginLeft:'20px',marginTop:'5px'}}>{localUser.fname}</h1> 
                    </div>
                   <div className="border border-gray-300 w-11/12 overflow-auto" style={{height:'350px'}}>
                     <div className="flex pr-4 mt-3">
-                      <img className="w-9 h-9 rounded-full ml-2 " src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
+                      <img className="w-9 h-9 rounded-full ml-2 " src={userData?.profileImg? `http://localhost:8000/images/profile-images/${ userData.profileImg }` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
                       <h1 className="font-medium text-justify text-lg " style={{marginLeft:'20px',marginTop:'5px'}}>{localUser.fname} 
                       <span className="font-normal ml-3 text-base">
                          {viewPostedData.caption}
@@ -255,8 +277,8 @@ const onComment = (postId)=>{
                     </div>
                     <div className="mt-7 ml-2">
                     { viewPostedData.comment.map((element)=>{
-                     return <div className="flex pr-4 mt-4 ml-1">
-                      <img className="w-8 h-8 rounded-full ml-2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
+                     return <div className="flex pr-4 mt-4 ml-1"> 
+                      <img className="w-8 h-8 rounded-full ml-2" src={element?.profileImg? `http://localhost:8000/images/profile-images/${ element.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
                       <h1 className="font-medium text-justify " style={{marginLeft:'20px',marginTop:'3px'}}>{element.user} 
                       <span className="font-normal ml-3 text-base">
                          {element.text}
@@ -271,7 +293,7 @@ const onComment = (postId)=>{
                     <div className="border border-gray-300 w-11/12 h-24">
                       <div className="flex ml-4 mt-1">
                        { viewPostedData.likedUsers.includes(localUser._id) ? <svg className="w-8 h-8 cursor-pointer fill-red-500 text-red-500" onClick={()=>{
-                        onLike(userId,viewPostedData._id)  
+                        onLike(userId,viewPostedData._id)    
                       }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                          </svg>
@@ -293,7 +315,7 @@ const onComment = (postId)=>{
                     <input className=" text-gray-400 float-left ml-4 mt-3 h-8 w-96" onChange={(e)=>{setComment(e.target.value)}} placeholder="Add comment" type="text" />
                   
                     <a onClick={()=>{onComment(viewPostedData._id)}} className="float-right mr-16 mt-3 text-sky-300 cursor-pointer" >Post</a>
-                    </div>                      
+                    </div>                                          
                 </div>
                 {/*footer*/}
               </div>
@@ -329,8 +351,8 @@ const onComment = (postId)=>{
                    
                     <h1 className="ml-3 font-medium mt-1">{element.user}</h1>
                     </div>
-                    <div className="border border-zinc-400 h-7 w-24 rounded-lg mt-1">
-                      Following
+                    <div onClick={()=>{handleUnFollow(element.id)}} className="border border-zinc-400 h-7 w-24 rounded-lg mt-1 cursor-pointer">
+                      UnFollow
                     </div>
                   </div>  : null
                   })
@@ -341,7 +363,7 @@ const onComment = (postId)=>{
                 </div>
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b mt-16">
-                   
+                      
                 </div>
               </div>
             </div>
@@ -376,8 +398,8 @@ const onComment = (postId)=>{
                    
                     <h1 className="ml-3 font-medium mt-1">{element.user}</h1>
                     </div>
-                    <div className="border border-zinc-400 h-7 w-24 rounded-lg mt-1">
-                      Following
+                    <div className="border border-zinc-400 h-7 w-24 rounded-lg mt-1 cursor-pointer">
+                      Follow
                     </div>
                   </div>  : null
                   })
@@ -395,6 +417,9 @@ const onComment = (postId)=>{
           <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
         </>
       ) : null}
+      {
+        profileImgModal? <ProfileImgModal user={userData} setProfileImgModal={setProfileImgModal}/>:null
+      }
     </div>
     </>
   )

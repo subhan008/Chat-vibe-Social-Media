@@ -1,30 +1,42 @@
-import {useEffect,useState} from 'react'
+import {useEffect,useState,useRef} from 'react'
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { Tooltip} from "@material-tailwind/react";
 
-function Navbar() {
-console.log('kkkkkkkkk');
+function Navbar({setShowModal,setNotificationModal,receiveNotif}) {
 const navigate = useNavigate()
+const socket = useRef()                   
 const user = JSON.parse( localStorage.getItem('user'))
-const [notifCount,setNotifCount] = useState(0)
-console.log(notifCount,'countttttttt');
+const [notifCount,setNotifCount] = useState([])
+
+let count = 0
 const onLogout = ()=>{
   localStorage.removeItem('user')
   localStorage.removeItem('userToken')
 
   navigate('/login')
 }
+
 useEffect(()=>{
+   
    axios.get(`http://localhost:8000/notification/${user._id}`).then((res)=>{
-   res.data.data.map((element)=>{
-    if(element.seen === false){
-      
-       setNotifCount(notifCount+1)
-    }
-   })
+     setNotifCount(res.data.data)
    })
 },[])
+
+notifCount.map((element)=>{
+  if(element.seen == false){
+    count = count + 1
+  }
+})
+
+useEffect(()=>{
+  console.log('9*9*7*9*');
+  count = 10
+},[receiveNotif])
+
+console.log(notifCount,'countttttttt');
+console.log(count,'ethhhhhh');
   return (    
     <nav className="nav  bg-white h-20 " >
       <div className="p-6 ">
@@ -44,10 +56,16 @@ useEffect(()=>{
 
         </button>
         </div> */}
-
+<Tooltip content="Search">
+<a onClick={()=>{setShowModal(true)}} >
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-7 mr-5 cursor-pointer">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+</svg>
+</a> 
+</Tooltip>
 <Tooltip content="Notification">
-<a onClick={()=>{navigate('/notification')}} >
-{/* { notifCount == 0?null:<div class="absolute w-5 h-5 bg-blue-300 rounded-full ml-5" style={{marginTop:'-7px'}}>{notifCount}</div>} */}
+<a onClick={()=>{setNotificationModal(true)}} >
+{ count == 0?null:<div class="absolute w-5 h-3 bg-blue-300 rounded-full ml-5" style={{marginTop:'-7px',paddingBottom:'22px'}}>{count}</div>}
 <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" h-7 mr-5 cursor-pointer">       
   <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0M3.124 7.5A8.969 8.969 0 015.292 3m13.416 0a8.969 8.969 0 012.168 4.5" />
 </svg>

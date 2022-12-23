@@ -106,27 +106,24 @@ followUser:(data)=>{
      }
   })
 },
-doNotification:(data)=>{
-  console.log(data,'lll');
+doNotification:(receiverId,userId,notification,userName)=>{
+  console.log('lll');  
   return new Promise(async (resolve,reject)=>{
-    const currentMonth = new Date().getMonth()
-    console.log(currentMonth);
-    const userData  = await schema.userData.findOne({_id:data.userId})
-    console.log(userData,'pppppppppp');
-    data.text = `started following you`
 
-    const user = await schema.notfiData.findOne({userId:data.followedUserId})
+    const user = await schema.notfiData.findOne({userId:receiverId})
     if(user){
-      console.log(userData.fname,'sasas');
-      schema.notfiData.updateOne({userId:data.followedUserId},{
-        $push:{notifications:{date:currentMonth,user:userData.fname,text:data.text,seen:false}}
+      console.log('sasas'); 
+      schema.notfiData.updateOne({userId:receiverId},{
+        $push:{notifications:{date: new Date(),user:userName,text:notification,seen:false}}
       }).then((res)=>{
         console.log('dsdssds',res);
+        resolve()
       })
     }    
     else{
-      schema.notfiData({userId:data.followedUserId,notifications:{date:currentMonth,user:userData.fname,text:data.text,seen:false}}).save()
+      schema.notfiData({userId:receiverId,notifications:{date:new Date(),user:userName,text:notification,seen:false}}).save()
       console.log('lllll');
+      resolve()
     }
   })  
 },
@@ -191,6 +188,21 @@ addMessage:(data)=>{
       await schema.chatData({chaterIds:[data.messagerId,data.receiverId],chat:[data]}).save()
       resolve()
     }
+   })
+},
+
+editProfile:(data)=>{
+   return new Promise((resolve,reject)=>{
+     schema.userData.updateOne({_id:data._id},{
+      $set:{
+        fname:data.fname,
+        email:data.email,
+        bio:data?.bio
+      }
+     }).then(()=>{
+      console.log('cccccc');
+      resolve()
+     })
    })
 }
 
