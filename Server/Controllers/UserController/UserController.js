@@ -337,21 +337,34 @@ const addProfileImg = ((req,res)=>{
 })
 
 const removeProfileImg = ((req,res)=>{
-      schema.userData.updateOne({_id:req.body.userId},{
+  try {
+    schema.userData.updateOne({_id:req.body.userId},{
         $unset:{profileImg:1}
       }).then(()=>{
           res.send({message:"success"})
       })
+  } catch (error) {
+    res.status(500).json(error)
+
+  }
+      
 })
 
 const notificationsSeend = ((req,res)=>{
+  
   console.log('444',req.params.id);
-  schema.notfiData.updateOne({userId:req.params.id},{
+  try {
+    schema.notfiData.updateOne({userId:req.params.id},{
      $set: { notifications : [] } 
   }).then(()=>{
     console.log('mnmn');
     res.send({})
-  })
+  }) 
+  } catch (error) {
+    res.status(500).json(error)
+
+  }
+ 
 })     
 
 const unFollowUser = ((req,res)=>{
