@@ -30,7 +30,7 @@ module.exports = {
      };
      
      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
+        if (error) {  
             return console.log('***3********************',error);
         }
         console.log('Message sent: %s', info.messageId);   

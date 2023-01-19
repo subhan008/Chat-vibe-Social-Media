@@ -1,27 +1,39 @@
 const jwt = require("jsonwebtoken");
 
-const verifyToken = (req, res, next) => {
-    console.log('dededed');
-  let authHeader = req.headers.token;
-  console.log(req.headers,"req.headers in vrify token middleware");
-  if (authHeader) {
- // authHeader = authHeader.replaceAll('"', "");
-    const token = authHeader.split(" ")[1];
-    console.log(token,"user tokennnnn");
-    jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
-      if (err) {
-        console.log(err, "invalid token");
-        res.status(403).json({ authError: true });
-      } else {
-        console.log("inside");
-        next();
-      }
-    });  
-  } else {
-    console.log('mkmkmkk');
-    return res.status(401).json({ authError: true ,message:"you are not authenticated"});
+require('dotenv').config();     
+
+
+const verifyToken = async (req, res, next) => {
+  try {
+  const authorization = req.headers['authorization']
+  if (!authorization) {
+      // throw new Error ('You need to login')
+      return res.status(500).json({ data: 'you need to login' })
   }
-};
+  const token = authorization.split(' ')[1]
+  console.log(token,'jiijijijij');
+  console.log(process.env.SECRET_KEY,'exsasasasasas');
+  console.log(jwt.verify(token, process.env.SECRET_KEY),'kikikikiki');
+  
+  const  userId  = await verify(token,process.env.SECRET_KEY)
+  console.log(userId,"ahhhhhhhhhhhhhh");
+      if (userId != null) {
+          next()
+      }
+  } catch (error) {
+      console.log("fsndjsndjsdsnj",error);
+      res.status(500).send({ error: "Authentication failed" })
+  }
+  // verify(token, process.env.JWT_SECRET_TOKEN, function (err) {
+  //     if (err) {
+  //         res.status(500).send({ error: "Authentication failed" })
+  //     }
+  //     else {
+  //         console.log('token verified');
+  //         next();
+  //     }
+  // })
+}
 
 
 module.exports = {

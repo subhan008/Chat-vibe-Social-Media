@@ -1,6 +1,8 @@
 import {useEffect,useState} from 'react'
 import axios from "axios";
+
 function followingsModal({setShowModal,userId,setChatUsers,setChatUser,chatUsers,setMessages}) {
+
 const [followings,setFollowings] = useState([])
 
 console.log(chatUsers,'helooo');

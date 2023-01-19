@@ -8,7 +8,7 @@ var indexRouter = require('./routes/user');
 var usersRouter = require('./routes/admin');
 var mongoose = require('mongoose')
 var app = express();  
-const cors = require('cors')      
+const cors = require('cors')        
  
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

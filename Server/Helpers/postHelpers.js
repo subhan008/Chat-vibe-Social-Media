@@ -50,7 +50,7 @@ module.exports = {
             schema.postData.updateOne({_id:data.postId},{
               $push:{comment:{user:data.user,text:data.comment,profileImg:data.profileImg,date:data.date}}
             }).then(()=>{
-              console.log('777777777');
+              console.log('777777777');    
               resolve()   
             })
           })
@@ -58,7 +58,7 @@ module.exports = {
        getAllPosts:()=>{
         return new Promise(async (resolve,reject)=>{
         let posts = await schema.postData.find().sort({_id:-1})
-          console.log(posts,'1111111');
+          console.log(posts._id,'1111111');
         let data = []
         for(i=0 ; i<posts.length ; i++){
                                                                                                                

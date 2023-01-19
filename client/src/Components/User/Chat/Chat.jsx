@@ -117,18 +117,18 @@ function Chat() {
         <div className="border overflow-auto" style={{height:"30rem",width:'40rem'}}>
           { messages.map((element)=>{
       return element.messagerId == localUser._id?<>
-          <div ref={scroll} className="w-56 h-20 mt-4 bg-cyan-100  ml-80 rounded-lg" style={{borderRadius:'28px',marginLeft:'24rem'}}>
+          <div ref={scroll} className="w-44 h-16 mt-4 bg-cyan-100  ml-80 rounded-lg" style={{borderRadius:'28px',marginLeft:'27rem'}}>
             <h1 className="float-left ml-4 mt-2 text-lg">{element.message}</h1>
-            <p className="float-right  mr-5 text-xs" style={{marginTop:'60px'}}>{format(element.timeStamp)}</p>
+            <p className="float-right  mr-5 text-xs" style={{marginTop:'45px'}}>{format(element.timeStamp)}</p>
           </div>
           </>
           :
           <> 
           <div className="flex  ml-4" ref={scroll}>
           <Avatar className="mt-10" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="avatar" variant="circular" size="sm" />
-            <div className="w-56 h-20 mt-4 bg-zinc-100 ml-2 rounded-lg" style={{borderRadius:'28px',maxHeight:'100px'}}>
+            <div className="w- h-20 mt-4 bg-zinc-100 ml-2 rounded-lg" style={{borderRadius:'28px',maxHeight:'62px'}}>
              <h1 className="float-left ml-4 mt-2 text-lg">{element.message}</h1>
-             <p className="float-right  mr-5 text-xs" style={{marginTop:'60px'}}>{format(element.timeStamp)}</p>
+             <p className="float-right  mr-5 text-xs" style={{marginTop:'45px'}}>{format(element.timeStamp)}</p>
             </div>
           </div>
           </>

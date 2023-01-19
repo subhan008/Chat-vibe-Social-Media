@@ -1,8 +1,11 @@
-import {useState,useEffect} from 'react'
+import {useState,useEffect,useContext} from 'react'
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {AuthContext} from "../../../Store/Context";
 
 function Search({setShowModal}) {
+
+const { setUser } = useContext(AuthContext)
 
 const navigate = useNavigate()
 const [searchInput,setSearchInput] = useState(null)
@@ -18,24 +21,14 @@ const handleOnSearch = (e)=>{
     axios.post('http://localhost:8000/search-user',{user:e.target.value}).then((res)=>{
         setSearchResult(res.data.user)
     })
-   }
-
+   }  
+const handleOnSelectUser = (searchResult)=>{
+  setUser(searchResult)
+  localStorage.setItem("searchedUser",JSON.stringify(searchResult))       
+  navigate('/user-page')
+}
   return (
     <>
-    {/* <div className="w-64 h-32 ml-10 bg-gray-50 rounded-xl">
-    <h1 className="text-3xl mr-36 mt-5">Search</h1>
-  <div className="flex pt-4 ml-2"> 
-  <form action="">
-     <input  className="w-48 h-10 border-2 border-stone-400 rounded-l-lg   " onChange={handleOnChange} placeholder="Add comment" type="text"/>
-     </form>
-     <button className="w-11 h-10 bg-blue-400 rounded-r-lg" onClick={handleOnSearch}>
-     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 ml-2 text-white">
-     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-     </svg>
-    </button>
-    
-    </div>
-  </div> */}
     <div
             className="justify-center  items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
           >
@@ -56,7 +49,7 @@ const handleOnSearch = (e)=>{
 
                 <div className="relative p-6 flex-auto mt- rounded-lg mt-2 overflow-auto" style={{width:"27rem",height:'20rem'}}>
                  {searchResult?
-                 <div className="flex justify-between mt-3 hover:bg-slate-100 cursor-pointer" onClick={()=>{}}>
+                 <div className="flex justify-between mt-3 hover:bg-slate-100 cursor-pointer" onClick={()=>{handleOnSelectUser(searchResult)}}>
                     
                     <div className="flex">     
                   <img className="w-12 h-12 rounded-full " src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />

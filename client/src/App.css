@@ -48,7 +48,6 @@ body{
 }
 
 .posts{
-  
   border-style: solid ;
   border-width: 1px;
   margin-top: 23px;
@@ -79,5 +78,10 @@ body{
   margin-left: -44px;
     margin-top: -10rem;
     visibility: hidden;
+
+}
+
+.nav{
+  margin-top: -5px;
 
 }

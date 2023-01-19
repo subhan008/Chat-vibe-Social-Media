@@ -8,7 +8,7 @@ const io = require('socket.io')(8800,{
 let activeUsers = []
 let messageData = {}
 io.on("connection",socket => {
-   
+      
     /*add new user*/
     socket.on('new-user-add',(newUserId)=>{
         if(!activeUsers.some((user)=> user.userId === newUserId)){
@@ -38,8 +38,8 @@ io.on("connection",socket => {
         if(user){           
             io.to(user.socketId).emit('receive-notification', notifData)   
                       console.log('herreeeeeeee88e'); 
-      
-        }   
+            
+        }       
     })         
         
         console.log('Connected Users', activeUsers);

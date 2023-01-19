@@ -24,7 +24,7 @@ const postShema = new mongoose.Schema({
 })
 
 const ConnectionShema = new mongoose.Schema({
-   userId:String,
+   userId:String,  
    followers:[String],
    following:[String],
 })    

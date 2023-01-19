@@ -6,6 +6,7 @@ import Profile from "./Components/User/Profile/Profile";
 import Notification from "./Components/User/Notification";
 import ChatPage from "./Components/User/Chat/Chat";
 import EditProfile from "./Components/User/Profile/EditProfile";
+import UserProfile from "./Components/User/UserProfile/profilePage";
 
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import {BrowserRouter,Routes,Route} from "react-router-dom";
@@ -23,6 +24,7 @@ function App() {
           <Route path="/notification" element={<Notification />}/>
           <Route path="/inbox" element={<ChatPage />}/>
           <Route path="/edit-profile" element={<EditProfile/>} />
+          <Route path="/user-page" element={<UserProfile/>} />
         </Route>
       
       </Routes>

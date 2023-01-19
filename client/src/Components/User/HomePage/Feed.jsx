@@ -7,6 +7,7 @@ import NotificationModal from "../Notification";;
 import Search from "./Search";
 import axios from "axios";
 import {format} from "timeago.js";
+import {config} from "../../../Config/config";
 import {
   Accordion,
   AccordionHeader,
@@ -39,10 +40,11 @@ if(localUser){
       navigate('/login')
     }
 },[])
+     
     
-
   useEffect(()=>{
-    axios.get(`http://localhost:8000/getAllPosts/${localUser._id}`).then((res)=>{
+    console.log(config,'oppopopopoopp');
+    axios.get(`http://localhost:8000/getAllPosts/${localUser._id}`,config).then((res)=>{
       setFeedPosts(res.data.posts)
       setUserData(res.data.userData)
     })
@@ -70,12 +72,14 @@ useEffect(()=>{
        }
     })
   }
-  const onComment = (postId)=>{
+  const onComment = (postId,postedUserId)=>{
     if(!comment==""){
-      axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId,profileImg:userData.profileImg
-      ,date:new Date(),homePage:true})
-      .then((res)=>{
+      axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId,profileImg:userData.profileImg,
+      commentedUserID:localUser._id,recieverId:postedUserId,date:new Date(),homePage:true})
+      .then(async (res)=>{
           setFeedPosts(res.data.data)
+          await socket.current.emit('sent-notification',{receiverId:postedUserId,notifData:{user:localUser.fname,date:new Date(),text:`commented on your post'${comment}'`}})
+
           
       })
     }
@@ -91,7 +95,7 @@ useEffect(()=>{
     <>
     <Navbar  setShowModal={setShowModal} setNotificationModal={setNotificationModal} receiveNotif={receiveNotif}/>
      
-    <div className="flex justify-between mt-5 overflow-auto "> 
+    <div className="flex justify-between  overflow-auto pt-2"> 
      <div>
      
       <div className="w-60 h-60 ml-10 bg-gray-50 rounded-xl mt-11">
@@ -102,8 +106,9 @@ useEffect(()=>{
        { 
         feedPosts.map((element)=>{
        return <>
-        <div className="posts w-96 h-72 bg-gray-50 mx-auto pt-16 overflow-auto mt-">
-        
+       <div className="feed">
+      <div className="posts w-96 h-72 bg-gray-50 mx-auto pt-16 overflow-auto ">
+       
         <div className="ml-1">
           <img className="w-9 h-9 rounded-full ml-2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" style={{marginTop:'-47px'}}  />
           <h1 className="float-left ml-14 text-lg font-normal  " style={{marginTop:'-33px'}}>{element.userName}</h1> 
@@ -153,21 +158,22 @@ useEffect(()=>{
                         </h1>
                         
                     </div>
-                    <p className="text-xs font-normal" style={{marginLeft:'60px',width:'52px',marginTop:'-9px'}}>{format(element.timeStamp)}</p>
+                    <p className="text-xs font-normal" style={{marginLeft:'45px',width:'',marginTop:'-9px',maxWidth:'93px'}}>{format(element.date)}</p>
                     </>
                     })
                     
-                    } 
+                  } 
                     </div>
         </AccordionBody>
       </Accordion>
       </Fragment>
             <div className="flex ml-20 " style={{marginLeft:'20rem'}}>
              <input className="border border-slate-300 mt- h-9 w-96 mr- bg-gray-50 pl-3" onChange={(e)=>{setComment(e.target.value)}} type="text" placeholder="Add comment" style={{marginLeft:"-20rem",width:"41rem"}}/>
-             <p className="mt- ml-28 absolute text-sky-300 cursor-pointer" onClick={()=>{onComment(element._id)}} style={{marginLeft:'17rem'}} >Post</p>
+             <p className="mt- ml-28 absolute text-sky-300 cursor-pointer" onClick={()=>{onComment(element._id,element.userId)}} style={{marginLeft:'17rem'}} >Post</p>
             </div> 
            </div>
-                       </>
+            </div>     
+                  </>
         }) 
         }
        </div>

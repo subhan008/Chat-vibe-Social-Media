@@ -7,7 +7,7 @@ module.exports = {
     return new Promise( async(resolve,reject)=>{
       let userExist = await schema.userData.findOne({
         email:data.email
-      })
+      })                
       if(userExist){
         console.log('sssss');
         resolve({userAdded:false})
@@ -102,12 +102,12 @@ followUser:(data)=>{
       })  
       resolve()  
      }
-
+  
      }
   })
 },
 doNotification:(receiverId,userId,notification,userName)=>{
-  console.log('lll');  
+  console.log(receiverId,'*************');  
   return new Promise(async (resolve,reject)=>{
 
     const user = await schema.notfiData.findOne({userId:receiverId})
@@ -115,7 +115,7 @@ doNotification:(receiverId,userId,notification,userName)=>{
       console.log('sasas'); 
       schema.notfiData.updateOne({userId:receiverId},{
         $push:{notifications:{date: new Date(),user:userName,text:notification,seen:false}}
-      }).then((res)=>{
+      }).then((res)=>{ 
         console.log('dsdssds',res);
         resolve()
       })
@@ -190,13 +190,12 @@ addMessage:(data)=>{
     }
    })
 },
-
+   
 editProfile:(data)=>{
    return new Promise((resolve,reject)=>{
      schema.userData.updateOne({_id:data._id},{
       $set:{
         fname:data.fname,
-        email:data.email,
         bio:data?.bio
       }
      }).then(()=>{

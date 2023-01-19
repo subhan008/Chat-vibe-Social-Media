@@ -5,7 +5,7 @@ function Suggestions({}) {
 const [users,setUsers] = useState([])
 const localUser = JSON.parse( localStorage.getItem('user'))
 
-console.log(users,'okokoo');
+console.log(users,'okokoo');   
 
  useEffect(()=>{
   axios.get(`http://localhost:8000/suggestions/${localUser._id}`).then((res)=>{
@@ -29,7 +29,7 @@ function onFollow(followedUserId,userId) {
         <div className='flex justify-between w-96'>
          <h1 className="ml-3 font-normal">{element.fname}</h1>    
            <h1 onClick={()=>{element.follow = true
-          onFollow(element._id) }} className="mr-3 text-blue-500 font-medium">follow</h1> 
+          onFollow(element._id) }} className="mr-3 text-blue-500 font-medium cursor-pointer">follow</h1> 
        </div>
       </div>
       

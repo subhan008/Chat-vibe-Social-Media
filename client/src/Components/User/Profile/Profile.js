@@ -7,12 +7,12 @@ import {useNavigate} from "react-router-dom";
 function Profile() {      
 
 const [showModal, setShowModal] = useState(false);
-const [image,setImage] = useState()
+const [image,setImage] = useState() 
 const [posts,setPosts] = useState([])
 const [postView,setPostView] = useState(false)
 const [caption,setCaption] = useState("") 
 const [viewPostedData,setViewPostedData] =useState({})
-const [comment,setComment] = useState("")
+const [comment,setComment] = useState("") 
 const [followersCount,setFollowersCount] = useState("") 
 const [followingCount,setFollowingCount] = useState("") 
 const [followingModal,setFollowingModal] = useState(false)
