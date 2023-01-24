@@ -1,6 +1,8 @@
 import {useState,useEffect} from 'react'
 import Navbar from "../Navbar";
 import axios from "axios";
+import {config} from "../../../Config/config";
+
 function EditProfile() {    
  
   const [userData,setUserData] = useState({})
@@ -17,7 +19,7 @@ const [otpErr,setOtpErr] = useState(null)
 console.log(userOtp,'jijijij'); 
  
 useEffect(()=>{
-  axios.get(`http://localhost:8000/profile-datas/${localUser._id}`).then((res)=>{
+  axios.get(`http://localhost:8000/profile-datas/${localUser._id}`,config).then((res)=>{
     setFormData(res.data.user)
      setOldEmail(res.data.user.email)
   })
@@ -30,7 +32,7 @@ const handleOnSubmit = (e)=>{
   e.preventDefault()  
 
   formData.oldEmail = oldEmail
-   axios.put('http://localhost:8000/edit-profile',formData).then((res)=>{
+   axios.put('http://localhost:8000/edit-profile',formData,config).then((res)=>{
      if(res.data.newEmail){
       setOtp(res.data.otp)
       setOtpModal(true) 

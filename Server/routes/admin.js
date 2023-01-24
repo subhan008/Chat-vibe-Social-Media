@@ -7,8 +7,8 @@ const jwt = require('jsonwebtoken')
 
 
 const  Admin = {
-  name:"admin",   
-  password:'123'  
+  name:"admin",     
+  password:'123'      
 }
 
 router.post('/admin/admin-login',async function(req, res, next) {  

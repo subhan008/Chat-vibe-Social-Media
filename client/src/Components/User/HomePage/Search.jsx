@@ -2,6 +2,7 @@ import {useState,useEffect,useContext} from 'react'
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../../../Store/Context";
+import {config} from "../../../Config/config";
 
 function Search({setShowModal}) {
 
@@ -18,7 +19,7 @@ const handleOnChange = (e)=>{
 const handleOnSearch = (e)=>{
     console.log('mjmmjmjm');
     setSearchInput(e.target.value)
-    axios.post('http://localhost:8000/search-user',{user:e.target.value}).then((res)=>{
+    axios.post('http://localhost:8000/search-user',{user:e.target.value},config).then((res)=>{
         setSearchResult(res.data.user)
     })
    }  

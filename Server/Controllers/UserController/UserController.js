@@ -43,7 +43,7 @@ const userLogin = ((req,res)=>{
      
      if (user) {    
        console.log(user,'pop');   
-       const token = jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"1d"}) 
+       const token = jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"30d"}) 
        return res.send({token: token,message:"User logined successfully",user,valid:true})
      } 
      else{ 

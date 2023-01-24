@@ -65,7 +65,7 @@ useEffect(()=>{
   
   const onLikeUnlike = (likedUserId,postId,postedUserId)=>{
     console.log('44444444444'); 
-    axios.post(`http://localhost:8000/post-like-Unlike`,{postId,likedUserId,postedUserId:postedUserId,homePage:true}).then((res)=>{  
+    axios.post(`http://localhost:8000/post-like-Unlike`,{postId,likedUserId,postedUserId:postedUserId,homePage:true},config).then((res)=>{  
        setFeedPosts(res.data.data)
        if(res.data.liked){
         socket.current.emit('sent-notification',{receiverId:postedUserId,notifData:{user:localUser.fname,date:new Date(),text:'liked your post'}})
@@ -75,7 +75,7 @@ useEffect(()=>{
   const onComment = (postId,postedUserId)=>{
     if(!comment==""){
       axios.put('http://localhost:8000/add-comment',{comment:comment,user:localUser.fname,postId:postId,profileImg:userData.profileImg,
-      commentedUserID:localUser._id,recieverId:postedUserId,date:new Date(),homePage:true})
+      commentedUserID:localUser._id,recieverId:postedUserId,date:new Date(),homePage:true},config)
       .then(async (res)=>{
           setFeedPosts(res.data.data)
           await socket.current.emit('sent-notification',{receiverId:postedUserId,notifData:{user:localUser.fname,date:new Date(),text:`commented on your post'${comment}'`}})

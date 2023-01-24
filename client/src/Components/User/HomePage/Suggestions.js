@@ -1,5 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import axios   from "axios";
+import {config} from "../../../Config/config";
+
 function Suggestions({}) {
 
 const [users,setUsers] = useState([])
@@ -8,14 +10,14 @@ const localUser = JSON.parse( localStorage.getItem('user'))
 console.log(users,'okokoo');   
 
  useEffect(()=>{
-  axios.get(`http://localhost:8000/suggestions/${localUser._id}`).then((res)=>{
+  axios.get(`http://localhost:8000/suggestions/${localUser._id}`,config).then((res)=>{
     setUsers(res.data.data)
   })
  },[])
  
 function onFollow(followedUserId,userId) {
   console.log(users,'okokoo');
-  axios.post('http://localhost:8000/follow',{followedUserId:followedUserId,userId:localUser._id}).then((res)=>{
+  axios.post('http://localhost:8000/follow',{followedUserId:followedUserId,userId:localUser._id},config).then((res)=>{
     
   })
 } 

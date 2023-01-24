@@ -10,49 +10,49 @@ const { verifyToken } = require("../middleWares/middleWares")
 require('dotenv').config(); 
 
 console.log(verifyToken);
-
+                 
 router.post('/signup',userSignup)      
   
-router.post('/login', userLogin)      
+router.post('/login', userLogin)         
+    
+router.post('/upload-post',verifyToken, uploadPost)     
   
-router.post('/upload-post', uploadPost)     
-  
-router.get('/profile-datas/:userId',getPosts)
+router.get('/profile-datas/:userId',verifyToken,getPosts)
          
-router.get('/getAllPosts/:id',getAllPosts)
+router.get('/getAllPosts/:id',verifyToken,getAllPosts)
   
-router.post('/post-like-Unlike',postLike_Unlike)
+router.post('/post-like-Unlike',verifyToken,postLike_Unlike)
 
-router.put('/add-comment',addComment)  
+router.put('/add-comment',verifyToken,addComment)  
 
-router.get('/suggestions/:id', getSuggestion)
+router.get('/suggestions/:id',verifyToken, getSuggestion)
 
-router.post('/follow', followUser)
+router.post('/follow',verifyToken, followUser)
                                       
-router.get('/notification/:id',getNotification)
+router.get('/notification/:id',verifyToken,getNotification)
                                       
-router.get('/getFollowing-Followers/:id',getFollowingFollowers)
+router.get('/getFollowing-Followers/:id',verifyToken,getFollowingFollowers)
                                      
-router.get('/getChatUsers/:id', getChatUsers)
+router.get('/getChatUsers/:id',verifyToken, getChatUsers)
   
-router.post('/addMessage', addMessage)  
+router.post('/addMessage',verifyToken, addMessage)  
                                                                                                       
-router.get('/getMessages/:messagerId/:receiverId', getMessages)
+router.get('/getMessages/:messagerId/:receiverId',verifyToken, getMessages)
 
-router.post('/add-newMessage', addNewMessages)
+router.post('/add-newMessage',verifyToken, addNewMessages)
 
-router.post('/search-user', searchUser)
+router.post('/search-user',verifyToken, searchUser)
 
-router.post('/add-profile-photo/:id' , addProfileImg)
+router.post('/add-profile-photo/:id' ,verifyToken, addProfileImg)
 
-router.put('/remove-profile-photo', removeProfileImg)
+router.put('/remove-profile-photo',verifyToken, removeProfileImg)
 
-router.put('/notification-seened/:id', notificationsSeend)
+router.put('/notification-seened/:id',verifyToken, notificationsSeend)
    
-router.put('/unFollow', unFollowUser)
+router.put('/unFollow',verifyToken, unFollowUser)
 
-router.put('/edit-profile', editProfile)
+router.put('/edit-profile',verifyToken, editProfile)
 
-router.put('/change-email', changeEmail)
+router.put('/change-email',verifyToken, changeEmail)
 module.exports = router;
  
