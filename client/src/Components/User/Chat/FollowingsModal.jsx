@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react'
 import axios from "axios";
+import {config} from "../../../Config/config";
 
 function followingsModal({setShowModal,userId,setChatUsers,setChatUser,chatUsers,setMessages}) {
 
@@ -8,14 +9,17 @@ const [followings,setFollowings] = useState([])
 console.log(chatUsers,'helooo');
 
     useEffect(()=>{
-         axios.get(`http://localhost:8000/getFollowing-Followers/${userId}`).then((res)=>{
+         axios.get(`http://localhost:8000/getFollowing-Followers/${userId}`,config).then((res)=>{
+          if (res.data.err) {
+            navigate('/Error-500')
+          }
          setFollowings(res.data.followingUsers)
         })  
     },[])
     
     const handleOnAdd = (obj)=>{
 
-         axios.post('http://localhost:8000/add-newMessage',{messagerId:userId,receiverId:obj.id}).then((res)=>{
+         axios.post('http://localhost:8000/add-newMessage',{messagerId:userId,receiverId:obj.id},config).then((res)=>{
             setChatUsers([...chatUsers,obj]) 
             setMessages(res.data.chatUser.chat)
             setShowModal(false)

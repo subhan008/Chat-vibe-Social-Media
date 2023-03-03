@@ -4,11 +4,17 @@ import Login from "./Components/User/Login";
 import HomePage from "./Components/User/HomePage/Feed";
 import Profile from "./Components/User/Profile/Profile";
 import Notification from "./Components/User/Notification";
+import ServerErrPage from "./Components/User/ServerErrPage";
 import ChatPage from "./Components/User/Chat/Chat";
 import EditProfile from "./Components/User/Profile/EditProfile";
 import UserProfile from "./Components/User/UserProfile/profilePage";
-
+import AdminLogin from "./Components/Admin/Login";
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
+import AdminPrivateRoute from "./PrivateRoute/AdminPrivateRoute";
+import AdminHomePage from "./Components/Admin/HomePage";
+import Rposts from "./Components/Admin/R-posts";
+
+
 import {BrowserRouter,Routes,Route} from "react-router-dom";
 function App() {
   return (
@@ -25,8 +31,14 @@ function App() {
           <Route path="/inbox" element={<ChatPage />}/>
           <Route path="/edit-profile" element={<EditProfile/>} />
           <Route path="/user-page" element={<UserProfile/>} />
+          <Route path="/Error-500" element={<ServerErrPage/>} />
         </Route>
-      
+        <Route path="/admin/login" element={<AdminLogin/>} />
+          <Route element={ <AdminPrivateRoute/> }>      
+            <Route path='/admin' element={<AdminHomePage/>}/>  
+            <Route path='/r-posts' element={<Rposts/> }/>
+            <Route path="/Error-500" element={<ServerErrPage/>} />
+        </Route>
       </Routes>
       </BrowserRouter>
        

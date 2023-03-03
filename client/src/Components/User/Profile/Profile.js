@@ -3,7 +3,18 @@ import Navbar from "../Navbar";
 import axios from "axios";
 import ProfileImgModal from "./ProfileImgModal";
 import {useNavigate} from "react-router-dom";
-
+import {format} from "timeago.js";
+import {config} from "../../../Config/config";
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+  Button,
+} from "@material-tailwind/react";
 function Profile() {      
 
 const [showModal, setShowModal] = useState(false);
@@ -24,12 +35,16 @@ const [profileImgModal,setProfileImgModal] = useState(false)
 const [userData,setUserData] =useState({})
 const navigate = useNavigate()
 
-console.log(profileImgModal,'uuuuu');
+console.log(image,'uuuuu');
 let localUser = JSON.parse( localStorage.getItem('user') )
 const userId = localUser._id 
 
 useEffect(()=>{
-  axios.get(`http://localhost:8000/profile-datas/${userId}`).then((res)=>{
+  axios.get(`http://localhost:8000/profile-datas/${userId}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
+    
   setPosts(res.data.data)
   setFollowersCount(res.data.followers)
   setFollowingCount(res.data.following)
@@ -42,7 +57,10 @@ useEffect(()=>{
 },[viewPostedData])
 
    useEffect( ()=>{
-   axios.get(`http://localhost:8000/getFollowing-Followers/${userId}`).then((res)=>{
+   axios.get(`http://localhost:8000/getFollowing-Followers/${userId}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
        setFollowing(res.data.followingUsers)
      
        setFollowers(res.data.followersUsers)
@@ -57,21 +75,27 @@ const handleOnChange = (e)=>{
 
 const onLike = (likedUserId,postId)=>{
   console.log('sasasas');
-  axios.post(`http://localhost:8000/post-like-Unlike`,{postId,userId,profilePage:true}).then((result)=>{  
+  axios.post(`http://localhost:8000/post-like-Unlike`,{postId,userId,profilePage:true},config).then((result)=>{  
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
       setViewPostedData(result.data.data)
   })
 }
 
 const onSubmit = (e)=>{
   e.preventDefault();
-if(image.type == "image/png"){
+if(image.type == "image/png" || image.type == "image/jpeg"){
   const data = new FormData()
   
 data.append('file',image);
 const date = new Date() 
 const userId = localUser._id
    console.log(data,'oooo');  
-  axios.post('http://localhost:8000/upload-post',data,{params:{date,userId,caption}}).then((res)=>{
+  axios.post('http://localhost:8000/upload-post',data,{params:{date,userId,caption}},config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
     location.reload() 
   })
 }else{
@@ -82,6 +106,9 @@ const onComment = (postId)=>{
   if(!comment==""){
     axios.put('http://localhost:8000/add-comment',{comment:comment,user:userData.fname,postId:postId,profileImg:userData.profileImg,date:new Date(),profilePage:true})
     .then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      }
         setViewPostedData(res.data.data)
     })
   }
@@ -91,11 +118,31 @@ const onComment = (postId)=>{
 }
 
 const handleUnFollow = (id)=>{
-  axios.put('http://localhost:8000/unFollow',{id:id,userId:userId}).then(()=>{
+  axios.put('http://localhost:8000/unFollow',{id:id,userId:userId},config).then(()=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
     location.reload()
   })
 }
-
+const deletePost = (postId)=>{
+  if (confirm("Are you sure")) {
+    axios.put(`http://localhost:8000/delete-post`,{postId:postId},config).then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      } 
+      location.reload()
+    })
+  }else {}
+}
+const EditCaption = (postId,caption)=>{
+  axios.put(`http://localhost:8000/edit-post-caption`,{postId:postId,caption:caption},config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    } 
+    
+  })
+}
 
   return (
     <>
@@ -263,21 +310,33 @@ const handleUnFollow = (id)=>{
                    <img src={`http://localhost:8000/images/${viewPostedData.image}`}  alt="" className="w-6/12 bg-red-100" style={{maxWidth:"100%",height:'34rem'}}/>
                    <div className="w-6/12  bg-white-100">
                     <div className="border border-gray-300 flex w-11/12 h-12">
-                      <img className="w-9 h-9 rounded-full ml-2"  src={userData?.profileImg? `http://localhost:8000/images/profile-images/${ userData.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"}  alt="" />
+                      <img className="w-9 h-9 rounded-full ml-2 mt-1"  src={userData?.profileImg? `http://localhost:8000/images/profile-images/${ userData.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"}  alt="" />
                    <h1 className="font-medium text-lg" style={{marginLeft:'20px',marginTop:'5px'}}>{localUser.fname}</h1> 
+                   <Menu placement="right-start">
+          <MenuHandler>
+          <svg  style={{marginLeft:'308px',float:"right"}} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 cursor-pointer mt-2">
+       <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+       </svg>
+          </MenuHandler>
+          <MenuList>
+            <MenuItem className="hover:bg-gray-200" onClick={()=>{deletePost(viewPostedData._id)}} >Delete</MenuItem>
+          </MenuList>
+        </Menu>
                    </div>
                   <div className="border border-gray-300 w-11/12 overflow-auto" style={{height:'350px'}}>
                     <div className="flex pr-4 mt-3">
                       <img className="w-9 h-9 rounded-full ml-2 " src={userData?.profileImg? `http://localhost:8000/images/profile-images/${ userData.profileImg }` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
+                      
                       <h1 className="font-medium text-justify text-lg " style={{marginLeft:'20px',marginTop:'5px'}}>{localUser.fname} 
                       <span className="font-normal ml-3 text-base">
-                         {viewPostedData.caption}
+                          <input className="focus:outline-0" type="text" name="caption" value={viewPostedData.caption} onChange={(e)=>{setViewPostedData({...viewPostedData,[e.target.name]:e.target.value})}}/>
                         </span>
                         </h1>
+                        <h1 className="text-blue-500 mt-1 ml-28 cursor-pointer" onClick={()=>{EditCaption(viewPostedData._id,viewPostedData.caption)}}>edit</h1>
                     </div>
                     <div className="mt-7 ml-2">
                     { viewPostedData.comment.map((element)=>{
-                     return <div className="flex pr-4 mt-4 ml-1"> 
+                     return <> <div className="flex pr-4 mt-4 ml-1"> 
                       <img className="w-8 h-8 rounded-full ml-2" src={element?.profileImg? `http://localhost:8000/images/profile-images/${ element.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
                       <h1 className="font-medium text-justify " style={{marginLeft:'20px',marginTop:'3px'}}>{element.user} 
                       <span className="font-normal ml-3 text-base">
@@ -285,6 +344,8 @@ const handleUnFollow = (id)=>{
                         </span>
                         </h1>
                     </div>
+                    <p className="text-xs font-normal" style={{marginLeft:'46px',width:'',marginTop:'-8px',maxWidth:'93px'}}>{format(element.date)}</p>
+                     </>
                     })
                     
                     } 

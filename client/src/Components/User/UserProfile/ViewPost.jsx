@@ -1,9 +1,11 @@
 import {useEffect,useState} from 'react'
 import axios from "axios";
+import {config} from "../../../Config/config";
 
 function VIewPost({setViewPost,viewPostedData,userData,setViewPostedData,socket}) {
 
 const [comment,setComment] = useState("") 
+
 let localUser = JSON.parse( localStorage.getItem('user') )
 
 
@@ -13,7 +15,7 @@ let localUser = JSON.parse( localStorage.getItem('user') )
   
   const onLikeUnlike = (likedUserId,postId,postedUserId)=>{
     console.log('44444444444'); 
-    axios.post(`http://localhost:8000/post-like-Unlike`,{postId,likedUserId,postedUserId:postedUserId,searchPage:true}).then((res)=>{  
+    axios.post(`http://localhost:8000/post-like-Unlike`,{postId,likedUserId,postedUserId:postedUserId,searchPage:true},config).then((res)=>{  
       setViewPostedData(res.data.data)
        if(res.data.liked){
         socket.current.emit('sent-notification',{receiverId:postedUserId,notifData:{user:localUser.fname,date:new Date(),text:'liked your post'}})  
@@ -23,7 +25,7 @@ let localUser = JSON.parse( localStorage.getItem('user') )
 
   const onComment = (postId)=>{
     if(!comment==""){
-      axios.put('http://localhost:8000/add-comment',{comment:comment,user:userData.fname,postId:postId,profileImg:userData.profileImg,date:new Date(),profilePage:true})
+      axios.put('http://localhost:8000/add-comment',{comment:comment,user:userData.fname,postId:postId,profileImg:userData.profileImg,date:new Date(),profilePage:true},config)
       .then((res)=>{
           setViewPostedData(res.data.data)
       })

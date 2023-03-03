@@ -1,4 +1,4 @@
-const jwtToken = localStorage.getItem('userToken')
+const jwtToken = localStorage.getItem('adminToken')
 
 console.log(jwtToken,'he8111iiiiiii');
 export const config = {
@@ -8,4 +8,3 @@ export const config = {
     authorization: `Bearer ${jwtToken}`      
   },
 }
-

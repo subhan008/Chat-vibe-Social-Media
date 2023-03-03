@@ -20,7 +20,7 @@ module.exports = {
         })
        },
        postLike_Unlike:(data)=>{
-        console.log('55555555');
+        console.log('55555555');   
         return new Promise(async (resolve,reject)=>{
           const user = await schema.postData.findOne({$and:[{_id:data.postId},{likedUsers:data.likedUserId}]} )
           if(user){
@@ -91,5 +91,7 @@ module.exports = {
         }
         resolve(posts)                           
         })        
-       }
+       }  
 }
+
+  

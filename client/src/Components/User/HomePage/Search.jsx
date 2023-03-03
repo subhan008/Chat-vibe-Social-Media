@@ -20,12 +20,15 @@ const handleOnSearch = (e)=>{
     console.log('mjmmjmjm');
     setSearchInput(e.target.value)
     axios.post('http://localhost:8000/search-user',{user:e.target.value},config).then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      }
         setSearchResult(res.data.user)
     })
    }  
 const handleOnSelectUser = (searchResult)=>{
   setUser(searchResult)
-  localStorage.setItem("searchedUser",JSON.stringify(searchResult))       
+  localStorage.setItem("searchedUser",JSON.stringify(searchResult))        
   navigate('/user-page')
 }
   return (
@@ -53,7 +56,7 @@ const handleOnSelectUser = (searchResult)=>{
                  <div className="flex justify-between mt-3 hover:bg-slate-100 cursor-pointer" onClick={()=>{handleOnSelectUser(searchResult)}}>
                     
                     <div className="flex">     
-                  <img className="w-12 h-12 rounded-full " src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU" alt="" />
+                  <img className="w-12 h-12 rounded-full " src={searchResult?.profileImg? `http://localhost:8000/images/profile-images/${ searchResult.profileImg }` :"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPDheuafnrCB0q-VE5n3RLRREX5dN3JrdJzJF76tz0y80fP4uNM0ZTtXbXWA-e2yuWKKk&usqp=CAU"} alt="" />
                    
                     <h1 className="ml-3 font-normal  text-lg mt-2">{searchResult.fname}</h1>
                     </div>

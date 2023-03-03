@@ -10,7 +10,7 @@ module.exports = {
       })                
       if(userExist){
         console.log('sssss');
-        resolve({userAdded:false})
+        resolve({userAdded:false}) 
       }else{
         const hashPassword = await bcrypt.hash(data.password,10)
         data.password = hashPassword                           
@@ -179,13 +179,14 @@ addMessage:(data)=>{
     if(chatExist){
       schema.chatData.updateOne({_id:chatExist._id},{
         $push:{chat:data}
-      }).then(()=>{
+      }).then(async ()=>{    
+        await  schema.chatData.updateOne({_id:chatExist._id},{$set:{updatedTime:data.timeStamp}})
         resolve()
       })
 
     }else{
       console.log('heheheh');
-      await schema.chatData({chaterIds:[data.messagerId,data.receiverId],chat:[data]}).save()
+      await schema.chatData({chaterIds:[data.messagerId,data.receiverId],chat:[data],updatedTime:data.timeStamp}).save()
       resolve()
     }
    })
@@ -203,7 +204,25 @@ editProfile:(data)=>{
       resolve()
      })
    })
-}
+},
+
+// :(data)=>{
+//   console.log('hiiiiiii');
+//   return new Promise(async (resolve,reject)=>{
+//     const exist = await schema.notfiData.findOne({userId:data.receiverId,seen:false})
+//     console.log('/////');
+//     if (exist){
+//       await schema.notfiData.updateOne({userId:data.receiverId,seen:false},{
+//          $inc :{chatNotif:1}
+//       })
+//       console.log('mm');
+//     }else{
+//       console.log('vvvvv');
+//        await schema.notfiData({userId:data.receiverId,chatNotif:1,seen:false}).save()
+//        console.log('.33333.....');
+//     }
+//   })
+// }
 
  
  

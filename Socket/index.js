@@ -29,7 +29,7 @@ io.on("connection",socket => {
             console.log('herreeeeeeeee');
             io.to(user.socketId).emit('receive-message' , messageData) 
         }   
-    })     
+    })          
     socket.on('sent-notification',(data)=>{
         console.log('heiiiiiiii',data);        
         const notifData = data.notifData

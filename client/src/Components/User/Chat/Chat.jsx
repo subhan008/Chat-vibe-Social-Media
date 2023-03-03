@@ -5,6 +5,8 @@ import {io} from "socket.io-client";
 import axios from "axios";
 import {format} from "timeago.js";
 import FollowingsModal from "./FollowingsModal";
+import {config} from "../../../Config/config";
+
 function Chat() {
   const [newMessage,setNewMessage] = useState(null) 
   const [onlineUsers,setOnlineUsers] = useState([])
@@ -18,10 +20,10 @@ function Chat() {
   const [messageSented,setMessageSented] = useState(false) 
   const [receiveMessage,setReceiveMessage] = useState({})
   const [showModal,setShowModal] = useState(false)
- 
+  
   console.log(chatUsers,'on;lineee');  
   console.log(messages,'mesgesss');
-
+  
   useEffect(()=>{
     socket.current = io('http://localhost:8800')   
     socket.current.emit('new-user-add', localUser._id)
@@ -31,24 +33,33 @@ function Chat() {
   },[])             
 
   useEffect(()=>{
-    axios.get(`http://localhost:8000/getChatUsers/${localUser._id}`).then((res)=>{
+    axios.get(`http://localhost:8000/getChatUsers/${localUser._id}`,config).then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      }
         setChatUsers(res.data.data)  
     })
   },[])
 
   const handleOnClick = (obj)=>{
       setChatUser(obj)
-      axios.get(`http://localhost:8000/getMessages/${localUser._id}/${obj.id}`).then((res)=>{
+      axios.get(`http://localhost:8000/getMessages/${localUser._id}/${obj.id}`,config).then((res)=>{
+        if (res.data.err) {
+          navigate('/Error-500')
+        }
        setMessages(res.data.messages) 
       })
   }
   
   const handleSentMessage = (recieverId)=>{
-     axios.post(`http://localhost:8000/addMessage`,{messagerId:localUser._id,message:newMessage,timeStamp: new Date(),receiverId:chatUser.id})
+     axios.post(`http://localhost:8000/addMessage`,{messagerId:localUser._id,message:newMessage,timeStamp: new Date(),receiverId:chatUser.id},config)   
      .then((res)=>{
         /** Sent message to socket server **/
+        if (res.data.err) {
+          navigate('/Error-500')
+        }
     socket.current.emit('sent-message',{receiverId:chatUser.id,messageData:{messagerId:localUser._id,message:newMessage,timeStamp:new Date()}})
-
+        setChatUsers(res.data.chatUsers)
        setMessages(res.data.messages)
      })
   }  
@@ -76,6 +87,7 @@ function Chat() {
   },[messages])
 
   useEffect(()=>{ },[messages])
+  useEffect(()=>{ },[chatUsers])
 
   return (
     <>

@@ -11,6 +11,9 @@ console.log(users,'okokoo');
 
  useEffect(()=>{
   axios.get(`http://localhost:8000/suggestions/${localUser._id}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
     setUsers(res.data.data)
   })
  },[])
@@ -18,7 +21,9 @@ console.log(users,'okokoo');
 function onFollow(followedUserId,userId) {
   console.log(users,'okokoo');
   axios.post('http://localhost:8000/follow',{followedUserId:followedUserId,userId:localUser._id},config).then((res)=>{
-    
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
   })
 } 
 

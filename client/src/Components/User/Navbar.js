@@ -2,6 +2,7 @@ import {useEffect,useState,useRef} from 'react'
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { Tooltip} from "@material-tailwind/react";
+import {config} from "../../Config/config";
 
 function Navbar({setShowModal,setNotificationModal,receiveNotif}) {
 const navigate = useNavigate()
@@ -10,6 +11,7 @@ const user = JSON.parse( localStorage.getItem('user'))
 const [notifCount,setNotifCount] = useState([])
 
 let count = 0
+
 const onLogout = ()=>{
   localStorage.removeItem('user')
   localStorage.removeItem('userToken')
@@ -19,7 +21,10 @@ const onLogout = ()=>{
 
 useEffect(()=>{
    
-   axios.get(`http://localhost:8000/notification/${user._id}`).then((res)=>{
+   axios.get(`http://localhost:8000/notification/${user._id}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
      setNotifCount(res.data.data)
    })
 },[])
@@ -40,7 +45,7 @@ console.log(count,'ethhhhhh');
   return (    
     <nav className="nav  bg-white h-20 w-full" >
       <div className="p-6 ">
-    <h2 className="float-left text-3xl font-semibold ml-28 ">Chat <span className="text-fuchsia-800 mr-5">vibe</span></h2>
+    <h2 className="float-left text-3xl font-semibold ml-28 cursor-pointer" onClick={()=>{navigate('/')}}>Chat <span className="text-fuchsia-800 mr-5">vibe</span></h2>
  <div >
  <button onClick={()=>{if(window.confirm('Are you sure')){ onLogout() }}} class="float-right bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
       Logout

@@ -10,14 +10,13 @@ const otpHelper = require('../OTP verification/otp-verification')
 const nodemailer = require('nodemailer');
 require('dotenv').config();     
 
-const userSignp = ((req,res)=>{
-   
- });         
+
 
  const userSignup = ((req,res)=>{  
-
+    
     console.log(req.body,'---------------');
-    userHelpers.doSignup(req.body).then((status)=>{
+    try {
+      userHelpers.doSignup(req.body).then((status)=>{
      
      console.log(status.userAdded);
        
@@ -31,16 +30,25 @@ const userSignp = ((req,res)=>{
        res.send({message:"Email Already Exist",userAdded:false})
      }
    })
-   .catch((err)=>{
-   })
+    } catch (error) {
+      res.send({err:true,message:"Internal Server Error"})
+
+    }
+    
+   
 });
 
-const userLogin = ((req,res)=>{
+const userLogin = (async (req,res)=>{
   console.log(req.body,'login data');
   try {
-     userHelpers.doLogin(req.body).then((user)=>{
+     blocked = await schema.userData.findOne({email:req.body.email,blocked:true})
+     if (blocked) {
+      return res.send({message:"sorry this account has been blocked",blocked:true})
+     }
+     else{
+       userHelpers.doLogin(req.body).then((user)=>{
      console.log('222');
-     
+             
      if (user) {    
        console.log(user,'pop');   
        const token = jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"30d"}) 
@@ -49,10 +57,13 @@ const userLogin = ((req,res)=>{
      else{ 
       return res.send({message:"Invalid Email Or Password",valid:false})          
      }   
-   })  
+      })
+     }
+      
   } catch (error) {
     console.log('ujujujujuju');
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
+
   }  
 
 });
@@ -60,7 +71,7 @@ const userLogin = ((req,res)=>{
 const uploadPost = ((req,res)=>{
     const data = req.query
     console.log(data,'-------------');    
-  
+    console.log('%%%%%%%%%%%%%%%%%%%%');
     try {
       const storage = multer.diskStorage({
         destination: path.join(__dirname, '../../public/images'),
@@ -84,7 +95,7 @@ const uploadPost = ((req,res)=>{
         }
       });
     } catch (error) {
-      res.status(500).json(error)
+      res.send({err:true,message:"Internal Server Error"})
     }
 });
                         
@@ -99,7 +110,7 @@ const getPosts = ((req,res)=>{
     res.send({data:posts,followers:followers,following:following,user:userData})
   })
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
   }
    
 });
@@ -128,7 +139,7 @@ try {
   }
     })
 } catch (error) {
-  res.status(500).json(error)
+  res.send({err:true,message:"Internal Server Error"})
 }
     
 });
@@ -150,7 +161,7 @@ const addComment = ((req,res)=>{
     }   
    })   
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
   }
   
 })
@@ -161,7 +172,7 @@ const getSuggestion = (async (req,res)=>{
     
     res.send({data:users})
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
 
   }
 })
@@ -176,7 +187,7 @@ const followUser =((req,res)=>{
    res.send({message:'success'})  
   })
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
   }
      
 })
@@ -186,22 +197,25 @@ const getAllPosts = ((req,res)=>{
     try {
         postHelpers.getAllPosts().then(async (posts)=>{
       const userData = await schema.userData.findOne({_id:req.params.id})
-      res.send({posts:posts,userData:userData}) 
+      res.send({posts:posts,userData:userData})
+       
     })
     } catch (error) {
-      res.status(500).json(error)
-
+      console.log('jnjnjnj');     
+      res.send({err:true,message:"Internal Server Error"})      
+      
     }
   
 })
 
 const getNotification = (async (req,res)=>{
+
   try {
     const data = await schema.notfiData.findOne({userId:req.params.id})
    data.notifications.reverse()
    res.send({data:data?.notifications}) 
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
 
   }
     
@@ -216,24 +230,47 @@ const getFollowingFollowers = ((req,res)=>{
     })
   })
    } catch (err) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
    }
-
+   
 })
 
 const addMessage = ((req,res)=>{
+  console.log(req.body,'cccccccccccccccc');
   try {
     userHelpers.addMessage(req.body).then(async()=>{
-   const chatData = await schema.chatData.findOne({$and:[{chaterIds:req.body.messagerId},{chaterIds:req.body.receiverId}]   })
-   res.send({messages:chatData.chat})
+   const chatData = await schema.chatData.findOne({$and:[{chaterIds:req.body.messagerId},{chaterIds:req.body.receiverId}]  })
+        
+   var chatUsers = await schema.chatData.find({chaterIds:req.body.messagerId}).sort({updatedTime:-1})
+     console.log(chatUsers,'zzzzzzzzzzzzzz');
+    let data = [ ]
+    for ( i = 0; i < chatUsers.length; i++) {
+       
+      const user = await schema.userData.findOne({_id:chatUsers[i].chaterIds[1]})
+      const messagerUser = await schema.userData.findOne({_id:chatUsers[i].chaterIds[0]})
+      console.log(chatUsers[i].chaterIds[1],'ooo');   
+      if(chatUsers[i].chaterIds[1] !== req.body.messagerId){
+        console.log('kkkkk');
+      data.push({id:chatUsers[i].chaterIds[1],user:user.fname,time: new Date()})
+      }
+      else{
+        if(chatUsers[i].chaterIds[0] !== req.body.messagerId){
+          data.push({id:chatUsers[i].chaterIds[0],user:messagerUser.fname,time: new Date()})
+        }
+      }
+    }
+    console.log('helo');
+    await userHelpers.doChatNotif(req.body)
+   res.send({messages:chatData.chat,chatUsers:data})
   })
   } catch (error) {
     res.status(500).json(error)
-
+    
   }
   
 })
-const getMessages = (async(req,res)=>{
+const getMessages = (async(req,res)=>{   
+
   try {
     const chatData = await schema.chatData.findOne({$and:[{chaterIds:req.params.messagerId},{chaterIds:req.params.receiverId}]   })
   console.log(chatData,'dsddsdsds');
@@ -250,7 +287,9 @@ const getMessages = (async(req,res)=>{
 const getChatUsers = (async (req,res)=>{
   console.log(req.params.id);
   try {
-     var chatUsers = await schema.chatData.find({chaterIds:req.params.id})
+
+     var chatUsers = await schema.chatData.find({chaterIds:req.params.id}).sort({updatedTime:-1})
+     console.log(chatUsers,'zzzzzzzzzzzzzz');
     let data = [ ]
     for ( i = 0; i < chatUsers.length; i++) {
        
@@ -259,16 +298,16 @@ const getChatUsers = (async (req,res)=>{
       console.log(chatUsers[i].chaterIds[1],'ooo');   
       if(chatUsers[i].chaterIds[1] !== req.params.id){
         console.log('kkkkk');
-      data.push({id:chatUsers[i].chaterIds[1],user:user.fname})
+      data.push({id:chatUsers[i].chaterIds[1],user:user.fname,time: new Date()})
       }
       else{
         if(chatUsers[i].chaterIds[0] !== req.params.id){
-          data.push({id:chatUsers[i].chaterIds[0],user:messagerUser.fname})
+          data.push({id:chatUsers[i].chaterIds[0],user:messagerUser.fname,time: new Date()})
         }
       }
     }
     
-    console.log(data,'oioioii');   
+    console.log(data,'oioioii0000000000');   
     res.send({data:data})      
   } catch (error) {
       res.status(500).json(error)  
@@ -332,7 +371,8 @@ const addProfileImg = ((req,res)=>{
       }
     });
   } catch (error) {
-    console.log(error);
+    res.send({err:true,message:"Internal Server Error"})
+
   }
 })
 
@@ -344,7 +384,8 @@ const removeProfileImg = ((req,res)=>{
           res.send({message:"success"})
       })
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
+
 
   }
       
@@ -358,10 +399,11 @@ const notificationsSeend = ((req,res)=>{
      $set: { notifications : [] } 
   }).then(()=>{
     console.log('mnmn');
-    res.send({})
+    res.send({message:"succesful"})
   }) 
   } catch (error) {
-    res.status(500).json(error)
+    res.send({err:true,message:"Internal Server Error"})
+
 
   }
  
@@ -398,7 +440,8 @@ const editProfile = ((req,res)=>{
 
 const changeEmail = ((req,res)=>{
   console.log(req.body,'jujjj');
-  schema.userData.updateOne({_id:req.body._id},{
+  try {
+      schema.userData.updateOne({_id:req.body._id},{
     $set:{
       email:req.body.email
     }
@@ -406,10 +449,110 @@ const changeEmail = ((req,res)=>{
     console.log('kmkm');
     res.send({message:'success'})  
   })
+  } catch (error) {
+    res.send({err:true,message:"Internal Server Error"}) 
+  }
+
 })
        
+const changePassowrd = ((req,res)=>{
+  console.log(req.body,'lololoolo');
+  try {
+    
+  } catch (error) {
+    res.send({err:true,message:"Internal Server Error"}) 
+  }
+})
+
+const reportPost = (async (req,res)=>{   
+  console.log(req.body,'%%%%%%%%');
+  
+ try {
+  const exist =  await schema.postData.findOne({_id:req.body.postId,reported:true}) 
+  if(exist){
+   console.log('ssas');
+   await schema.postData.updateOne({_id:req.body.postId},{
+       $push:{reportReasons:req.body.reason}
+   })
+   res.send({message:'succesfuly reported'})
+
+  }else{
+   console.log('cccc');
+    await schema.postData.updateOne({_id:req.body.postId},{
+   $set:{
+       reported:true,   
+       reportReasons:[req.body.reason]
+   }})
+   res.send({message:'succesfuly reported'})
+   
+  }
+
+ } catch (error) {
+   res.send({err:true,message:"Internal Server Error"})
+ }
+})
+
+const deletePost = (async (req,res)=>{
+  try {
+   await schema.postData.deleteOne({_id:req.body.postId})
+   res.send({message:'succesful'})
+
+  } catch (error) {
+    res.send({err:true,message:"Internal Server Error"})
+  }
+   console.log(req.body,"11111");
+   
+})
+const editPost = (async(req,res)=>{
+  try {
+    await schema.postData.updateOne({_id:req.body.postId},{ $set:{caption:req.body.caption}})
+    res.send({message:'succesful'})
+  } catch (error) {
+    res.send({err:true,message:"Internal Server Error"})
+  }
+})
+
+const reportUser = (async(req,res)=>{
+  console.log(req.body,'115154'); 
+  try {
+   const exist =  await schema.userData.findOne({_id:req.body.userId,report:true}) 
+    if(exist){
+     console.log('ssas');
+     await schema.userData.updateOne({_id:req.body.userId},{
+         $push:{reportReasons:req.body.reason}
+     })
+     res.send({message:'succesfuly reported'})
+
+    }else{
+     console.log('cccc');
+      await schema.userData.updateOne({_id:req.body.userId},{
+     $set:{
+         report:true,
+         reportReasons:[req.body.reason]
+     }})
+     res.send({message:'succesfuly reported'})
+     
+    }
+  } catch (error) {
+     res.send({err:true,message:"Internal Server Error"})
+  } 
+}) 
+  
+const deleteComment = (async (req,res)=>{
+  try {
+    console.log(req.body,';;;;;;;;;;;');
+    const x = await schema.postData.updateOne({comment:{$elemMatch:{_id:req.body.commentId}}},{
+      $pull:{comment:{_id:req.body.commentId}}
+    })
+    console.log('bvbvbv');  
+    res.send({message:'succesfuly reported'})
+  } catch (error) {
+    res.send({err:true,message:"Internal Server Error"})
+  }
+})
+
 module.exports  = {
    userLogin,userSignup,uploadPost,getPosts,postLike_Unlike,getAllPosts,addComment,getSuggestion,followUser,getNotification,editProfile,
    getFollowingFollowers,addMessage,getMessages,getChatUsers,addNewMessages,searchUser,addProfileImg,removeProfileImg,notificationsSeend,unFollowUser,
-   changeEmail
+   changeEmail,changePassowrd,reportPost,deletePost,editPost,reportUser,deleteComment
 }

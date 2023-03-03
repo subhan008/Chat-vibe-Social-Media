@@ -5,7 +5,7 @@ import {config} from "../../../Config/config";
 
 function EditProfile() {    
  
-  const [userData,setUserData] = useState({})
+ const [userData,setUserData] = useState({})
 
  let localUser = JSON.parse( localStorage.getItem('user') )
 
@@ -16,10 +16,14 @@ const [userOtp,setUserOtp] = useState('')
 const [otp,setOtp] = useState(null)
 const [otpModal,setOtpModal] = useState(false)
 const [otpErr,setOtpErr] = useState(null)
+const [password,setPassword] = useState("")
 console.log(userOtp,'jijijij'); 
- 
+ console.log(password);
 useEffect(()=>{
   axios.get(`http://localhost:8000/profile-datas/${localUser._id}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
     setFormData(res.data.user)
      setOldEmail(res.data.user.email)
   })
@@ -33,6 +37,7 @@ const handleOnSubmit = (e)=>{
 
   formData.oldEmail = oldEmail
    axios.put('http://localhost:8000/edit-profile',formData,config).then((res)=>{
+    
      if(res.data.newEmail){
       setOtp(res.data.otp)
       setOtpModal(true) 
@@ -47,7 +52,10 @@ const handleOnchange = (e)=>{
 
 const onVerify = ()=>{
   if(userOtp == otp){
-    axios.put('http://localhost:8000/change-email',formData).then((res)=>{
+    axios.put('http://localhost:8000/change-email',formData,config).then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      }
        location.reload()
     })      
    }
@@ -56,8 +64,17 @@ const onVerify = ()=>{
    }
 }
 
-const handleChangePassword = ()=>{
-  
+const handleChangePassword = (e)=>{
+   setPassword(e.target.value)
+}
+
+const onPasswordChange = ()=>{
+  axios.put(`http://localhost:8000/change-passowrd/${localUser._id}`).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
+    location.reload()
+  })
 }
   return (
     <>
@@ -123,23 +140,16 @@ const handleChangePassword = ()=>{
           </div>
           {/*body*/}                
 
-          <div className="relative p-6 flex-auto mt- rounded-lg mt-2 overflow-auto" style={{width:"27rem",height:'27rem'}}>
+          <div className="relative p-6 flex-auto mt- rounded-lg mt-2 overflow-auto" style={{width:"27rem",height:'14rem'}}>
            <div className="mt-3">
             <div>
-               <label htmlFor="" className="float-left ml-6 text-lg">Old password</label>
-               <input type="password"  className="w-96 h-10 border-2 border-stone-400 rounded-full py-2 px-4 mt-1" placeholder=""/>
+               <label htmlFor="" className="float-left ml-6 text-lg">Enter New PassWord</label>
+               <input type="password" onChange={handleChangePassword}  className="w-96 h-10 border-2 border-stone-400 rounded-full py-2 px-4 mt-1" placeholder=""/>
             </div>
-            <div className="mt-6">
-              <label htmlFor="" className="float-left ml-6 text-lg">New passowrd</label>
-              <input type="passowrd"  className="w-96 h-10 border-2 border-stone-400 rounded-full py-2 px-4 mt-1" placeholder=""/>
-            </div>
-            <div className="mt-6">
-              <label htmlFor="" className="float-left ml-5 text-lg">Confirm new passowrd</label>
-              <input type="passowrd"  className="w-96 h-10 border-2 border-stone-400 rounded-full py-2 px-4 mt-1" placeholder=""/>
-            </div>
+           
            </div>
            <div className="mt-11">
-             <button onClick={handleOnSubmit} className="shadow bg-purple-500 w-40 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">Submit</button>
+             <button onClick={onPasswordChange} className="shadow bg-purple-500 w-40 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">Submit</button>
             </div>
 
           </div>

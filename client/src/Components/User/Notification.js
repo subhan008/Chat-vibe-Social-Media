@@ -2,6 +2,7 @@ import React,{useEffect,useState,useRef} from 'react'
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {io} from "socket.io-client";
+import {config} from "../../Config/config";
 
 function NotificationModal({receiveNotif}) {
 
@@ -9,12 +10,16 @@ const socket = useRef()
 const [notifications,setNotifications] = useState([])
 const navigate = useNavigate()  
 const user = JSON.parse( localStorage.getItem('user'))
-
  useEffect(()=>{
-   axios.get(`http://localhost:8000/notification/${user._id}`).then((res)=>{
+   axios.get(`http://localhost:8000/notification/${user._id}`,config).then((res)=>{
+    if (res.data.err) {
+      navigate('/Error-500')
+    }
      setNotifications(res.data.data)
+     
   })  
  },[])
+console.log(notifications,'gbgbgg');
 
  useEffect(()=>{
   socket.current = io('http://localhost:8800')    
@@ -29,7 +34,10 @@ const user = JSON.parse( localStorage.getItem('user'))
   },[receiveNotif]) 
 
   const handleCloseNotif = ()=>{
-     axios.put(`http://localhost:8000/notification-seened/${user._id}`).then((res)=>{
+     axios.put(`http://localhost:8000/notification-seened/${user._id}`,config).then((res)=>{
+      if (res.data.err) {
+        navigate('/Error-500')
+      }
          location.reload()
      })
   }

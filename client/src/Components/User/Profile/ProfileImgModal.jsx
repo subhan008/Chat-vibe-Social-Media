@@ -11,6 +11,9 @@ console.log(image,'imgggggggg');
             const data = new FormData()
             data.append('file',e.target.files[0]);
             axios.post(`http://localhost:8000/add-profile-photo/${user._id}`,data).then(()=>{
+              if (res.data.err) {
+                navigate('/Error-500')
+              }
                location.reload()
             })   
         }
@@ -21,13 +24,15 @@ console.log(image,'imgggggggg');
 
     const handleRemoveProfile = ()=>{
         axios.put(`http://localhost:8000/remove-profile-photo` , {userId:user._id}).then(()=>{
+          if (res.data.err) {
+            navigate('/Error-500')
+          }
           location.reload()
         })
     }
   return (
     <>
-    <div
-            className="justify-center  items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+    <div  className="justify-center  items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
           >
             <div className="relative w-auto my-6 mx-auto max-w-3xl">
               {/*content*/}  

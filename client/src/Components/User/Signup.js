@@ -21,6 +21,9 @@ console.log(userOtp,'otttggtpgp');
   const onSubmit = ()=>{
     if(!signup.fname=="" || !signup.lname=="" ){
        axios.post('http://localhost:8000/signup',signup).then((res)=>{
+        if (res.data.err) {
+          navigate('/Error-500')
+        }
         if(res.data.userAdded){
           setOtp(res.data.otp)
           setShowModal(true)
